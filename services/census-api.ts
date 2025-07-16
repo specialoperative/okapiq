@@ -359,4 +359,3 @@ function processApiResponse(data: any, year: number, geography: string): Demogra
     }
   })
 }
-

@@ -252,4 +252,3 @@ function getMockSuggestions(query: string): GeographicArea[] {
 
   return [...filteredStates, ...filteredCities].slice(0, 10)
 }
-

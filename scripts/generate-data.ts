@@ -100,4 +100,3 @@ const smbData = generateSMBData(1000000)
 
 // In a real scenario, you would save this data to a database
 console.log(`Generated ${smbData.length} SMB data points`)
-

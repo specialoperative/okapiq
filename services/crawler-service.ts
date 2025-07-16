@@ -223,4 +223,3 @@ export class CrawlerService {
     return scoredBusinesses
   }
 }
-

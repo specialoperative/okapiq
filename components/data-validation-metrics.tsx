@@ -57,4 +57,3 @@ export function DataValidationMetrics() {
     </ResponsiveContainer>
   )
 }
-

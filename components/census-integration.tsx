@@ -137,4 +137,3 @@ export function CensusIntegration({ selectedBusiness }: CensusIntegrationProps) 
 
   return <CensusDemographics censusData={censusData} marketAnalysis={marketAnalysis} />
 }
-

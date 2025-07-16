@@ -128,4 +128,3 @@ export const CensusProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   return <CensusContext.Provider value={value}>{children}</CensusContext.Provider>
 }
-

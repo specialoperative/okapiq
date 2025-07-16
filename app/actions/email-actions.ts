@@ -38,4 +38,3 @@ export async function scheduleDemo(formData: FormData) {
     return { success: false, error: "Failed to schedule demo. Please try again." }
   }
 }
-

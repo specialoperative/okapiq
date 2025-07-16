@@ -176,4 +176,3 @@ export default function ComparisonTable({ primaryData, comparisonData }: Compari
     </div>
   )
 }
-

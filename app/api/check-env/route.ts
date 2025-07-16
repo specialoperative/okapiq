@@ -5,4 +5,3 @@ export async function GET() {
     hasCensusApiKey: !!process.env.CENSUS_API_KEY,
   })
 }
-

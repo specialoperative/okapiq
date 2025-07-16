@@ -218,4 +218,3 @@ export function CrawlerSearchForm({ onResultsFound }: CrawlerSearchFormProps) {
     </Card>
   )
 }
-

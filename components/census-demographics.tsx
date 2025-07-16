@@ -484,4 +484,3 @@ export function CensusDemographics({ censusData, marketAnalysis }: CensusDemogra
     </Card>
   )
 }
-

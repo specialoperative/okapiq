@@ -23,4 +23,3 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(({ className, v
 Progress.displayName = "Progress"
 
 export { Progress }
-

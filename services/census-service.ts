@@ -233,4 +233,3 @@ export async function analyzeMarket(location: string, industry: string): Promise
     insights,
   }
 }
-

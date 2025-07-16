@@ -138,4 +138,3 @@ export default function GeographySelector() {
     </div>
   )
 }
-

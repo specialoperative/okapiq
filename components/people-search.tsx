@@ -267,4 +267,3 @@ export function PeopleSearch() {
     </div>
   )
 }
-

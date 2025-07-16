@@ -122,4 +122,3 @@ export function exportChartAsPng(chartRef: React.RefObject<HTMLElement>, filenam
       })
   })
 }
-

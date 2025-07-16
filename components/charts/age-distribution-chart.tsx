@@ -48,4 +48,3 @@ export default function AgeDistributionChart({ data }: AgeDistributionChartProps
     </ChartContainer>
   )
 }
-

@@ -374,4 +374,3 @@ export function CrawlerResults({ results }: CrawlerResultsProps) {
     </div>
   )
 }
-

@@ -57,4 +57,3 @@ export function JungleBanner() {
 
   return <canvas ref={canvasRef} className="w-full h-24" />
 }
-

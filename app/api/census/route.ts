@@ -130,4 +130,3 @@ function getMockCensusResponse(geography: string, location: string) {
 
   return [headers, ...rows]
 }
-

@@ -1,0 +1,545 @@
+"use client"
+import { ArrowLeft, Zap, BarChart3, Globe, Users, CheckCircle, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
+
+export default function SolutionsPage() {
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Link href="/" className="text-2xl font-bold text-gray-900">
+                OkapIQ
+              </Link>
+              <Badge variant="secondary" className="ml-3 bg-blue-50 text-blue-700">
+                Bloomberg for LLMs
+              </Badge>
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <Link href="/solutions" className="text-gray-900 font-medium border-b-2 border-blue-600">
+                Solutions
+              </Link>
+              <Link href="/case-studies" className="text-gray-600 hover:text-gray-900 font-medium">
+                Case Studies
+              </Link>
+              <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 font-medium">
+                Dashboard
+              </Link>
+              <Link href="/contact">
+                <Button className="bg-blue-600 hover:bg-blue-700">Contact Now</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Header */}
+      <section className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-8">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Link>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">OkapIQ Solutions</h1>
+          <p className="text-xl text-gray-600 max-w-3xl">
+            Comprehensive AI-powered tools that transform how you discover, qualify, and close SMB acquisitions.
+          </p>
+        </div>
+      </section>
+
+      {/* Solutions Tabs */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <Tabs defaultValue="ai-deal-engine" className="w-full">
+            <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 mb-12">
+              <TabsTrigger value="ai-deal-engine" className="text-sm">
+                AI Deal Engine
+              </TabsTrigger>
+              <TabsTrigger value="oppy-valuations" className="text-sm">
+                Oppy Valuations
+              </TabsTrigger>
+              <TabsTrigger value="geo-smart" className="text-sm">
+                Geo Smart Analysis
+              </TabsTrigger>
+              <TabsTrigger value="post-acquisition" className="text-sm">
+                Post-Acquisition
+              </TabsTrigger>
+            </TabsList>
+
+            {/* AI Deal Engine */}
+            <TabsContent value="ai-deal-engine" className="space-y-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <div className="flex items-center mb-6">
+                    <Zap className="h-8 w-8 text-blue-600 mr-3" />
+                    <h2 className="text-3xl font-bold text-gray-900">AI Deal Engine</h2>
+                  </div>
+                  <p className="text-lg text-gray-600 mb-8">
+                    Our AI scans 33 million SMBs, qualifies leads 8x faster than manual cold calls, and reduces wasted
+                    broker time by 90%. Automated outreach with voice-modulated calls and personalized emails.
+                  </p>
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Smart Lead Discovery</h4>
+                        <p className="text-gray-600">
+                          Search Snake technology scans 33M SMBs to find niche targets matching your criteria
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">AI-Powered Outreach</h4>
+                        <p className="text-gray-600">
+                          Voice-modulated cold calls and personalized emails validate owners ready to sell
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Automated Qualification</h4>
+                        <p className="text-gray-600">
+                          5,000 leads qualified per day with 8x higher response rates than manual methods
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <Card className="border-2 border-blue-200 bg-blue-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-blue-800">33M</CardTitle>
+                      <CardDescription className="text-blue-700">SMBs Scanned</CardDescription>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-2 border-blue-200 bg-blue-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-blue-800">8x</CardTitle>
+                      <CardDescription className="text-blue-700">Faster Qualification</CardDescription>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-2 border-blue-200 bg-blue-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-blue-800">5,000</CardTitle>
+                      <CardDescription className="text-blue-700">Leads/Day</CardDescription>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-2 border-blue-200 bg-blue-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-blue-800">90%</CardTitle>
+                      <CardDescription className="text-blue-700">Time Saved</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Oppy Valuations */}
+            <TabsContent value="oppy-valuations" className="space-y-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="order-2 lg:order-1">
+                  <div className="grid grid-cols-2 gap-6">
+                    <Card className="border-2 border-green-200 bg-green-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-green-800">15M</CardTitle>
+                        <CardDescription className="text-green-700">Private Deals Benchmarked</CardDescription>
+                      </CardHeader>
+                    </Card>
+                    <Card className="border-2 border-green-200 bg-green-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-green-800">37%</CardTitle>
+                        <CardDescription className="text-green-700">Fewer Valuation Mismatches</CardDescription>
+                      </CardHeader>
+                    </Card>
+                    <Card className="border-2 border-green-200 bg-green-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-green-800">7.3x</CardTitle>
+                        <CardDescription className="text-green-700">Confident EBITDA Multiple</CardDescription>
+                      </CardHeader>
+                    </Card>
+                    <Card className="border-2 border-green-200 bg-green-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-green-800">80%</CardTitle>
+                        <CardDescription className="text-green-700">Messy Books Analyzed</CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </div>
+                </div>
+                <div className="order-1 lg:order-2">
+                  <div className="flex items-center mb-6">
+                    <BarChart3 className="h-8 w-8 text-green-600 mr-3" />
+                    <h2 className="text-3xl font-bold text-gray-900">Oppy Valuations</h2>
+                  </div>
+                  <p className="text-lg text-gray-600 mb-8">
+                    Our algorithms analyze financial data from messy books, benchmark against 15 million private deals,
+                    and provide confident EBITDA scores for accurate valuations. Eliminate the 37% deal failure rate
+                    from valuation mismatches.
+                  </p>
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Messy Books Analysis</h4>
+                        <p className="text-gray-600">
+                          AI processes unclear accounting and financial records to extract true business value
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Private Deal Benchmarking</h4>
+                        <p className="text-gray-600">
+                          Compare against 15M private transactions for accurate market-based valuations
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Confident EBITDA Scores</h4>
+                        <p className="text-gray-600">
+                          Maintain 7.3x multiples vs 4.9x for low-confidence deals, preventing overpayment
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Geo Smart Analysis */}
+            <TabsContent value="geo-smart" className="space-y-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <div className="flex items-center mb-6">
+                    <Globe className="h-8 w-8 text-purple-600 mr-3" />
+                    <h2 className="text-3xl font-bold text-gray-900">Geo Smart Analysis</h2>
+                  </div>
+                  <p className="text-lg text-gray-600 mb-8">
+                    OkapIQ's mapping identifies exact clusters of 12+ buyable SMBs per square mile, complete with
+                    synergy scores for optimal acquisition targeting. Perfect for roll-up strategies and geographic
+                    expansion.
+                  </p>
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-purple-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Cluster Identification</h4>
+                        <p className="text-gray-600">
+                          Find geographic concentrations of 12+ buyable SMBs per square mile
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-purple-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Synergy Scoring</h4>
+                        <p className="text-gray-600">
+                          AI-calculated synergy scores for optimal roll-up and consolidation opportunities
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-purple-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Market Intelligence</h4>
+                        <p className="text-gray-600">
+                          Demographic and economic data overlay for informed geographic expansion
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <Card className="border-2 border-purple-200 bg-purple-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-purple-800">12+</CardTitle>
+                      <CardDescription className="text-purple-700">SMBs per Square Mile</CardDescription>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-2 border-purple-200 bg-purple-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-purple-800">100%</CardTitle>
+                      <CardDescription className="text-purple-700">Geographic Coverage</CardDescription>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-2 border-purple-200 bg-purple-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-purple-800">AI</CardTitle>
+                      <CardDescription className="text-purple-700">Synergy Scoring</CardDescription>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-2 border-purple-200 bg-purple-50">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-purple-800">Real-time</CardTitle>
+                      <CardDescription className="text-purple-700">Market Data</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Post-Acquisition Services */}
+            <TabsContent value="post-acquisition" className="space-y-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="order-2 lg:order-1">
+                  <div className="grid grid-cols-2 gap-6">
+                    <Card className="border-2 border-orange-200 bg-orange-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-orange-800">3x</CardTitle>
+                        <CardDescription className="text-orange-700">Revenue Increase</CardDescription>
+                      </CardHeader>
+                    </Card>
+                    <Card className="border-2 border-orange-200 bg-orange-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-orange-800">56%</CardTitle>
+                        <CardDescription className="text-orange-700">Cost Reduction</CardDescription>
+                      </CardHeader>
+                    </Card>
+                    <Card className="border-2 border-orange-200 bg-orange-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-orange-800">238%</CardTitle>
+                        <CardDescription className="text-orange-700">SEO Improvement</CardDescription>
+                      </CardHeader>
+                    </Card>
+                    <Card className="border-2 border-orange-200 bg-orange-50">
+                      <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-orange-800">4x</CardTitle>
+                        <CardDescription className="text-orange-700">Lead Generation</CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </div>
+                </div>
+                <div className="order-1 lg:order-2">
+                  <div className="flex items-center mb-6">
+                    <Users className="h-8 w-8 text-orange-600 mr-3" />
+                    <h2 className="text-3xl font-bold text-gray-900">Post-Acquisition Services</h2>
+                  </div>
+                  <p className="text-lg text-gray-600 mb-8">
+                    Comprehensive marketing, staffing, lead generation, and accounting support to ensure successful
+                    integration after deals close. Our automation boosts revenue by 3x and reduces costs by 56%.
+                  </p>
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-orange-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Automated Marketing</h4>
+                        <p className="text-gray-600">
+                          SEO optimization, lead generation, and digital marketing automation
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-orange-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Staffing Solutions</h4>
+                        <p className="text-gray-600">
+                          AI-powered recruitment and workforce optimization for acquired businesses
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-orange-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Financial Reporting</h4>
+                        <p className="text-gray-600">
+                          Real-time ROI tracking and automated financial reporting systems
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-orange-500 mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Integration Support</h4>
+                        <p className="text-gray-600">Seamless operational integration with existing business systems</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+
+      {/* Competitive Advantage */}
+      <section className="py-20 bg-gray-50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose OkapIQ?</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our unified platform outperforms competitors with end-to-end automation and real-time insights.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full bg-white rounded-lg shadow-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Feature</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-blue-600">OkapIQ</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Competitors</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                <tr>
+                  <td className="px-6 py-4 text-sm text-gray-900">AI-Driven Insights</td>
+                  <td className="px-6 py-4 text-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                    <span className="text-xs text-green-600 block mt-1">Proprietary algorithms</span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="text-red-500">❌</span>
+                    <span className="text-xs text-red-600 block mt-1">Manual tools</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 text-sm text-gray-900">End-to-End Platform</td>
+                  <td className="px-6 py-4 text-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                    <span className="text-xs text-green-600 block mt-1">Pre to post-acquisition</span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="text-red-500">❌</span>
+                    <span className="text-xs text-red-600 block mt-1">Transaction-only</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 text-sm text-gray-900">API Integrations</td>
+                  <td className="px-6 py-4 text-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                    <span className="text-xs text-green-600 block mt-1">100+ integrations</span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="text-red-500">❌</span>
+                    <span className="text-xs text-red-600 block mt-1">Limited or none</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 text-sm text-gray-900">Real-Time ROI Tracking</td>
+                  <td className="px-6 py-4 text-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                    <span className="text-xs text-green-600 block mt-1">Live analytics</span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="text-red-500">❌</span>
+                    <span className="text-xs text-red-600 block mt-1">Basic reporting</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-blue-600 text-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6">Ready to Transform Your Deal Flow?</h2>
+          <p className="text-xl mb-8 opacity-90">
+            See how OkapIQ's solutions can 8x your response rates and reduce deal time by 90%.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/contact">
+              <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+                Book a Demo
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/case-studies">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-3 border-white text-white hover:bg-white hover:text-blue-600 bg-transparent"
+              >
+                View Case Studies
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="text-2xl font-bold mb-4">OkapIQ</div>
+              <p className="text-gray-400 mb-4">Bloomberg for LLMs</p>
+              <p className="text-gray-400 text-sm">Real-time SMB data and AI-powered deal flow for modern investors.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Solutions</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link href="/solutions" className="hover:text-white">
+                    AI Deal Engine
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/solutions" className="hover:text-white">
+                    Oppy Valuations
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/solutions" className="hover:text-white">
+                    Geo Smart Analysis
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/solutions" className="hover:text-white">
+                    Post-Acquisition
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link href="/case-studies" className="hover:text-white">
+                    Case Studies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard" className="hover:text-white">
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-white">
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Contact</h3>
+              <div className="space-y-2 text-gray-400">
+                <div className="flex items-center">
+                  <span>hello@okapiq.com</span>
+                </div>
+                <div className="flex items-center">
+                  <span>+1 (555) 123-4567</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 OkapIQ. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}

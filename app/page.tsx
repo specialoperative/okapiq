@@ -77,7 +77,7 @@ export default function HomePage() {
             <div className="flex items-center justify-center mb-6">
               <Sparkles className="h-8 w-8 text-blue-500 mr-3 animate-pulse" />
               <h1 
-                className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 bg-clip-text text-transparent"
+                className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 bg-clip-text text-transparent -mt-6"
                 style={{
                   transform: `translateY(${scrollY * 0.1}px)`,
                   opacity: Math.max(0.8, 1 - scrollY * 0.001)
@@ -88,7 +88,7 @@ export default function HomePage() {
               <Sparkles className="h-8 w-8 text-purple-500 ml-3 animate-pulse delay-300" />
             </div>
             <p 
-              className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl mt-24text-slate-600 mb-3 max-w-3xl mx-auto leading-relaxed"
               style={{
                 transform: `translateY(${scrollY * 0.05}px)`,
                 opacity: Math.max(0.9, 1 - scrollY * 0.0005)

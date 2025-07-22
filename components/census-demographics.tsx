@@ -321,7 +321,7 @@ export function CensusDemographics({ censusData, marketAnalysis }: CensusDemogra
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartTooltip trigger={<></>} content={<ChartTooltipContent />} />
                       <Legend />
                       <Bar dataKey="businessDensity" name="Business Density" fill="var(--color-businessDensity)" />
                       <Bar dataKey="selfEmployment" name="Self-Employment Rate" fill="var(--color-selfEmployment)" />

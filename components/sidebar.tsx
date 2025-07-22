@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BarChart3, Users, PieChart, Globe, Database, FileText, Settings, Home } from "lucide-react"
+import { Users, PieChart, Globe, Database, Home } from "lucide-react"
 
 export function Sidebar() {
   return (
@@ -24,13 +24,6 @@ export function Sidebar() {
             Data Validation
           </Link>
           <Link
-            href="/industry-insights"
-            className="flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-okapiq-50 dark:hover:bg-gray-700"
-          >
-            <BarChart3 className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" />
-            Industry Insights
-          </Link>
-          <Link
             href="/fragment-analysis"
             className="flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-okapiq-50 dark:hover:bg-gray-700"
           >
@@ -50,20 +43,6 @@ export function Sidebar() {
           >
             <Users className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" />
             Client Use Cases
-          </Link>
-          <Link
-            href="/reports"
-            className="flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-okapiq-50 dark:hover:bg-gray-700"
-          >
-            <FileText className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" />
-            Reports
-          </Link>
-          <Link
-            href="/settings"
-            className="flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-okapiq-50 dark:hover:bg-gray-700"
-          >
-            <Settings className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" />
-            Settings
           </Link>
         </nav>
       </div>

@@ -1,38 +1,46 @@
 "use client"
 
-import { ArrowLeft, CheckCircle } from "lucide-react"
+import { ArrowLeft, CheckCircle, ArrowRight, Users, TrendingUp, Mail, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { Star } from "lucide-react"
 
 export default function CaseStudiesPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       {/* Navigation */}
-      <nav className="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="border-b border-gray-800 bg-black/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-gray-900">
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="text-2xl font-bold text-white">
                 OkapIQ
               </Link>
-              <Badge variant="secondary" className="ml-3 bg-blue-50 text-blue-700">
-                Bloomberg for LLMs
-              </Badge>
+              <div className="hidden md:flex space-x-6">
+                <Link href="/solutions" className="text-gray-300 hover:text-white font-medium">
+                  Solutions
+                </Link>
+                <Link href="/case-studies" className="text-white font-medium border-b-2 border-green-600">
+                  Case Studies
+                </Link>
+                <Link href="/dashboard" className="text-gray-300 hover:text-white font-medium">
+                  Platform
+                </Link>
+              </div>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/solutions" className="text-gray-600 hover:text-gray-900 font-medium">
-                Solutions
-              </Link>
-              <Link href="/case-studies" className="text-gray-900 font-medium border-b-2 border-blue-600">
-                Case Studies
-              </Link>
-              <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 font-medium">
-                Dashboard
+            <div className="flex items-center space-x-4">
+              <Link href="/contact">
+                <Button
+                  variant="outline"
+                  className="hidden md:inline-flex bg-transparent border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
+                >
+                  Contact Now
+                </Button>
               </Link>
               <Link href="/contact">
-                <Button className="bg-blue-600 hover:bg-blue-700">Contact Now</Button>
+                <Button className="bg-green-600 hover:bg-green-700 text-white">Book a Demo</Button>
               </Link>
             </div>
           </div>
@@ -40,14 +48,14 @@ export default function CaseStudiesPage() {
       </nav>
 
       {/* Header */}
-      <section className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 bg-gray-900">
         <div className="max-w-7xl mx-auto">
-          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-8">
+          <Link href="/" className="inline-flex items-center text-green-400 hover:text-green-300 mb-8">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Success Stories</h1>
-          <p className="text-xl text-gray-600 max-w-3xl">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">Success Stories</h1>
+          <p className="text-xl text-gray-300 max-w-3xl">
             Real results from investors and brokers using OkapIQ to transform their deal flow and close more
             acquisitions.
           </p>
@@ -55,14 +63,14 @@ export default function CaseStudiesPage() {
       </section>
 
       {/* Case Studies */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black">
         <div className="max-w-7xl mx-auto space-y-20">
           {/* Case Study 1: Deal Closing Success */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="mb-4 bg-green-100 text-green-800">Deal Closing Success</Badge>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">$120K Revenue Generated in 4 Months</h2>
-              <p className="text-lg text-gray-600 mb-6">
+              <Badge className="mb-4 bg-green-900 text-green-100">Deal Closing Success</Badge>
+              <h2 className="text-3xl font-bold text-white mb-6">$120K Revenue Generated in 4 Months</h2>
+              <p className="text-lg text-gray-300 mb-6">
                 A mid-market search fund was struggling with manual outreach, achieving less than 1% response rates and
                 wasting hundreds of hours monthly on unqualified leads.
               </p>
@@ -70,8 +78,8 @@ export default function CaseStudiesPage() {
                 <div className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Challenge</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Challenge</h4>
+                    <p className="text-gray-300">
                       Manual cold calling with {"<"}1% response rates, 300+ hours wasted monthly
                     </p>
                   </div>
@@ -79,8 +87,8 @@ export default function CaseStudiesPage() {
                 <div className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Solution</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Solution</h4>
+                    <p className="text-gray-300">
                       OkapIQ's AI Deal Engine scraped 100,000+ qualified contacts with automated outreach
                     </p>
                   </div>
@@ -88,8 +96,8 @@ export default function CaseStudiesPage() {
                 <div className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Result</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Result</h4>
+                    <p className="text-gray-300">
                       70% boost in seller response rates, $120K revenue generated, $4K earned by OkapIQ
                     </p>
                   </div>
@@ -97,28 +105,28 @@ export default function CaseStudiesPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-6">
-              <Card className="border-2 border-green-200 bg-green-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-green-800">100K+</CardTitle>
-                  <CardDescription className="text-green-700">Contacts Scraped</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">100K+</CardTitle>
+                  <CardDescription className="text-green-300">Contacts Scraped</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="border-2 border-green-200 bg-green-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-green-800">$120K</CardTitle>
-                  <CardDescription className="text-green-700">Revenue Generated</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">$120K</CardTitle>
+                  <CardDescription className="text-green-300">Revenue Generated</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="border-2 border-green-200 bg-green-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-green-800">70%</CardTitle>
-                  <CardDescription className="text-green-700">Response Rate Boost</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">70%</CardTitle>
+                  <CardDescription className="text-green-300">Response Rate Boost</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="border-2 border-green-200 bg-green-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-green-800">4 Months</CardTitle>
-                  <CardDescription className="text-green-700">Time to Results</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">4 Months</CardTitle>
+                  <CardDescription className="text-green-300">Time to Results</CardDescription>
                 </CardHeader>
               </Card>
             </div>
@@ -128,63 +136,63 @@ export default function CaseStudiesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1">
               <div className="grid grid-cols-2 gap-6">
-                <Card className="border-2 border-blue-200 bg-blue-50">
+                <Card className="border-2 border-green-600 bg-green-900/20">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-2xl font-bold text-blue-800">238%</CardTitle>
-                    <CardDescription className="text-blue-700">SEO Increase</CardDescription>
+                    <CardTitle className="text-2xl font-bold text-green-400">238%</CardTitle>
+                    <CardDescription className="text-green-300">SEO Increase</CardDescription>
                   </CardHeader>
                 </Card>
-                <Card className="border-2 border-blue-200 bg-blue-50">
+                <Card className="border-2 border-green-600 bg-green-900/20">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-2xl font-bold text-blue-800">4x</CardTitle>
-                    <CardDescription className="text-blue-700">Lead Generation</CardDescription>
+                    <CardTitle className="text-2xl font-bold text-green-400">4x</CardTitle>
+                    <CardDescription className="text-green-300">Lead Generation</CardDescription>
                   </CardHeader>
                 </Card>
-                <Card className="border-2 border-blue-200 bg-blue-50">
+                <Card className="border-2 border-green-600 bg-green-900/20">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-2xl font-bold text-blue-800">$400K</CardTitle>
-                    <CardDescription className="text-blue-700">Company A Revenue</CardDescription>
+                    <CardTitle className="text-2xl font-bold text-green-400">$400K</CardTitle>
+                    <CardDescription className="text-green-300">Company A Revenue</CardDescription>
                   </CardHeader>
                 </Card>
-                <Card className="border-2 border-blue-200 bg-blue-50">
+                <Card className="border-2 border-green-600 bg-green-900/20">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-2xl font-bold text-blue-800">$1.2M</CardTitle>
-                    <CardDescription className="text-blue-700">Company B Revenue</CardDescription>
+                    <CardTitle className="text-2xl font-bold text-green-400">$1.2M</CardTitle>
+                    <CardDescription className="text-green-300">Company B Revenue</CardDescription>
                   </CardHeader>
                 </Card>
               </div>
             </div>
             <div className="order-1 lg:order-2">
-              <Badge className="mb-4 bg-blue-100 text-blue-800">Post-Acquisition Growth</Badge>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Landscaping Companies Scale 4x with Automation</h2>
-              <p className="text-lg text-gray-600 mb-6">
+              <Badge className="mb-4 bg-green-900 text-green-100">Post-Acquisition Growth</Badge>
+              <h2 className="text-3xl font-bold text-white mb-6">Landscaping Companies Scale 4x with Automation</h2>
+              <p className="text-lg text-gray-300 mb-6">
                 Two recently acquired landscaping companies needed rapid growth to justify acquisition multiples and
                 compete in fragmented local markets.
               </p>
               <div className="space-y-4 mb-8">
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-blue-500 mt-1 mr-3 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Challenge</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Challenge</h4>
+                    <p className="text-gray-300">
                       Post-acquisition growth pressure, local competition, manual marketing processes
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-blue-500 mt-1 mr-3 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Solution</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Solution</h4>
+                    <p className="text-gray-300">
                       OkapIQ's automated marketing suite with SEO optimization and lead generation tools
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-blue-500 mt-1 mr-3 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Result</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Result</h4>
+                    <p className="text-gray-300">
                       Combined $1.6M revenue increase across both companies within 12 months
                     </p>
                   </div>
@@ -196,36 +204,36 @@ export default function CaseStudiesPage() {
           {/* Case Study 3: Private Equity Success */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="mb-4 bg-purple-100 text-purple-800">Private Equity Efficiency</Badge>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">4x Faster Lead Aggregation for PE Firm</h2>
-              <p className="text-lg text-gray-600 mb-6">
+              <Badge className="mb-4 bg-green-900 text-green-100">Private Equity Efficiency</Badge>
+              <h2 className="text-3xl font-bold text-white mb-6">4x Faster Lead Aggregation for PE Firm</h2>
+              <p className="text-lg text-gray-300 mb-6">
                 A $500M private equity firm was spending too much time on manual deal sourcing and qualification,
                 missing opportunities in fast-moving markets.
               </p>
               <div className="space-y-4 mb-8">
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-purple-500 mt-1 mr-3 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Challenge</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Challenge</h4>
+                    <p className="text-gray-300">
                       Slow manual deal sourcing, low-quality leads, missed opportunities in competitive markets
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-purple-500 mt-1 mr-3 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Solution</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Solution</h4>
+                    <p className="text-gray-300">
                       OkapIQ's multi-source data fusion with automated qualification and outreach sequences
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-purple-500 mt-1 mr-3 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900">Result</h4>
-                    <p className="text-gray-600">
+                    <h4 className="font-semibold text-white">Result</h4>
+                    <p className="text-gray-300">
                       50% improvement in lead quality, 4x faster aggregation, dramatically improved efficiency
                     </p>
                   </div>
@@ -233,83 +241,81 @@ export default function CaseStudiesPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-6">
-              <Card className="border-2 border-purple-200 bg-purple-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-purple-800">4x</CardTitle>
-                  <CardDescription className="text-purple-700">Speed Increase</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">4x</CardTitle>
+                  <CardDescription className="text-green-300">Speed Increase</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="border-2 border-purple-200 bg-purple-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-purple-800">50%</CardTitle>
-                  <CardDescription className="text-purple-700">Better Lead Quality</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">50%</CardTitle>
+                  <CardDescription className="text-green-300">Better Lead Quality</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="border-2 border-purple-200 bg-purple-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-purple-800">$500M</CardTitle>
-                  <CardDescription className="text-purple-700">Fund Size</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">$500M</CardTitle>
+                  <CardDescription className="text-green-300">Fund Size</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="border-2 border-purple-200 bg-purple-50">
+              <Card className="border-2 border-green-600 bg-green-900/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-2xl font-bold text-purple-800">90%</CardTitle>
-                  <CardDescription className="text-purple-700">Time Saved</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">90%</CardTitle>
+                  <CardDescription className="text-green-300">Time Saved</CardDescription>
                 </CardHeader>
               </Card>
             </div>
           </div>
 
           {/* Real Estate Agent Pivot Case Study */}
-          <div className="bg-gray-50 rounded-2xl p-8 lg:p-12">
+          <div className="bg-gray-900 rounded-2xl p-8 lg:p-12 border border-gray-800">
             <div className="text-center mb-12">
-              <Badge className="mb-4 bg-orange-100 text-orange-800">Agent Transformation</Badge>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Turning $1M Home Agents into $1M Business Brokers
-              </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <Badge className="mb-4 bg-green-900 text-green-100">Agent Transformation</Badge>
+              <h2 className="text-3xl font-bold text-white mb-6">Turning $1M Home Agents into $1M Business Brokers</h2>
+              <p className="text-lg text-gray-300 max-w-3xl mx-auto">
                 With 87% of realtors considering exit (NAR 2024), OkapIQ offers a pivot to business sales with no new
                 license needed.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="text-center">
+              <Card className="text-center bg-black border border-gray-800">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-orange-600">4x</CardTitle>
-                  <CardDescription>Faster Closing vs Traditional Brokers</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">4x</CardTitle>
+                  <CardDescription className="text-gray-300">Faster Closing vs Traditional Brokers</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="text-center">
+              <Card className="text-center bg-black border border-gray-800">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-orange-600">120 Days</CardTitle>
-                  <CardDescription>Average Close Time</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">120 Days</CardTitle>
+                  <CardDescription className="text-gray-300">Average Close Time</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="text-center">
+              <Card className="text-center bg-black border border-gray-800">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-orange-600">3%</CardTitle>
-                  <CardDescription>Commission Rate (vs 1.5% homes)</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">3%</CardTitle>
+                  <CardDescription className="text-gray-300">Commission Rate (vs 1.5% homes)</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="text-center">
+              <Card className="text-center bg-black border border-gray-800">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-orange-600">$15K</CardTitle>
-                  <CardDescription>Fee on $500K Business Sale</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-green-400">$15K</CardTitle>
+                  <CardDescription className="text-gray-300">Fee on $500K Business Sale</CardDescription>
                 </CardHeader>
               </Card>
             </div>
 
-            <div className="bg-white rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Earnings Comparison</h3>
+            <div className="bg-black rounded-lg p-6 border border-gray-800">
+              <h3 className="text-xl font-bold text-white mb-4 text-center">Earnings Comparison</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-red-800 mb-2">Traditional Home Sale</h4>
-                  <p className="text-red-700">$500K home = $7.5K fee (1.5%)</p>
+                <div className="bg-red-900/20 p-4 rounded-lg border border-red-600">
+                  <h4 className="font-semibold text-red-400 mb-2">Traditional Home Sale</h4>
+                  <p className="text-red-300">$500K home = $7.5K fee (1.5%)</p>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-green-800 mb-2">Business Sale with OkapIQ</h4>
-                  <p className="text-green-700">$500K business = $15K fee (3%) + 10% bonus for post-close tools</p>
+                <div className="bg-green-900/20 p-4 rounded-lg border-2 border-green-600">
+                  <h4 className="font-semibold text-green-400 mb-2">Business Sale with OkapIQ</h4>
+                  <p className="text-green-300">$500K business = $15K fee (3%) + 10% bonus for post-close tools</p>
                 </div>
               </div>
             </div>
@@ -317,18 +323,91 @@ export default function CaseStudiesPage() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-20 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-white mb-6">What Our Clients Say</h2>
+              <p className="text-xl text-gray-300">
+                Hear directly from the professionals transforming their businesses with OkapIQ
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="bg-gray-900 border border-gray-800">
+                <div className="p-8">
+                  <div className="flex mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-gray-300 mb-6 text-lg">
+                    "The AI Deal Engine completely transformed our approach. We went from spending 300 hours a month on
+                    manual outreach to qualifying thousands of leads daily. The ROI has been incredible."
+                  </p>
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-green-900 rounded-full flex items-center justify-center mr-4">
+                      <Users className="h-6 w-6 text-green-400" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">Sarah Chen</div>
+                      <div className="text-gray-300">Managing Partner, Apex Search Fund</div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+              <Card className="bg-gray-900 border border-gray-800">
+                <div className="p-8">
+                  <div className="flex mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-gray-300 mb-6 text-lg">
+                    "OkapIQ helped us transition from real estate to business brokerage seamlessly. The commission rates
+                    are double what we made in residential, and deals close 4x faster."
+                  </p>
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-green-900 rounded-full flex items-center justify-center mr-4">
+                      <TrendingUp className="h-6 w-6 text-green-400" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">Michael Rodriguez</div>
+                      <div className="text-gray-300">Senior Broker, Elite Business Sales</div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600 text-white px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Write Your Success Story?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join the investors and brokers already transforming their deal flow with OkapIQ.
+      <section className="py-20 bg-gradient-to-r from-green-600 to-green-700 text-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold mb-6 text-center">Ready to Write Your Success Story?</h2>
+          <p className="text-xl mb-8 opacity-90 text-center">
+            Join the growing list of search funds, brokers, and private equity firms transforming their deal flow with
+            OkapIQ.
           </p>
-          <Link href="/contact">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-              Book Your Demo Today
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/contact">
+              <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 text-lg px-8 py-4">
+                Start Your Success Story
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/solutions">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-green-600 text-lg px-8 py-4 bg-transparent"
+              >
+                Explore Solutions
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -390,10 +469,12 @@ export default function CaseStudiesPage() {
               <h3 className="font-semibold mb-4">Contact</h3>
               <div className="space-y-2 text-gray-400">
                 <div className="flex items-center">
-                  <span>hello@okapiq.com</span>
+                  <Mail className="h-4 w-4 mr-2 text-green-400" />
+                  osirislamon@gmail.com
                 </div>
                 <div className="flex items-center">
-                  <span>+1 (555) 123-4567</span>
+                  <Phone className="h-4 w-4 mr-2 text-green-400" />
+                  +1 (661) 566-4627
                 </div>
               </div>
             </div>

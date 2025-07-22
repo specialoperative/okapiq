@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, Menu, Search, X } from "lucide-react"
+import { Bell, Menu, X } from "lucide-react" // Removed Search icon
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+// Removed Input import as search bar is removed
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Header() {
@@ -22,14 +22,7 @@ export function Header() {
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
-            <div className="hidden md:block">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search className="h-4 w-4 text-gray-400" />
-                </div>
-                <Input type="search" placeholder="Search SMBs..." className="pl-10 w-64" />
-              </div>
-            </div>
+            {/* Removed the search bar div */}
           </div>
           <div className="flex items-center">
             <Button variant="ghost" size="icon" className="mr-2">

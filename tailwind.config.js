@@ -24,12 +24,12 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "hsl(var(--okapiq-600))", // Mapped to OkapIQ green
+          foreground: "hsl(var(--white))", // Mapped to white
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "hsl(var(--okapiq-100))", // Mapped to OkapIQ light green
+          foreground: "hsl(var(--okapiq-800))", // Mapped to OkapIQ dark green
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

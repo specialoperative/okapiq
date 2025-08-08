@@ -135,9 +135,9 @@ export default function SolutionsPage() {
                       </div>
                     </div>
                   </div>
-                  <Link href="/contact">
+                  <Link href="/oppy">
                     <Button className="bg-green-600 hover:bg-green-700 text-white">
-                      Try AI Deal Engine
+                      Launch Oppy
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -241,9 +241,9 @@ export default function SolutionsPage() {
                       </div>
                     </div>
                   </div>
-                  <Link href="/contact">
+                  <Link href="/oppy">
                     <Button className="bg-green-600 hover:bg-green-700 text-white">
-                      Try Oppy Valuations
+                      Open Oppy Valuations
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -293,9 +293,9 @@ export default function SolutionsPage() {
                       </div>
                     </div>
                   </div>
-                  <Link href="/contact">
+                  <Link href="/fragment-finder">
                     <Button className="bg-green-600 hover:bg-green-700 text-white">
-                      Try Geo Smart Analysis
+                      Open Fragment Finder
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -404,6 +404,12 @@ export default function SolutionsPage() {
                         <p className="text-gray-300">Seamless operational integration with existing business systems</p>
                       </div>
                     </div>
+                    <Link href="/acquisition-assistant">
+                      <Button className="bg-green-600 hover:bg-green-700 text-white">
+                        Open Acquisition Assistant
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>

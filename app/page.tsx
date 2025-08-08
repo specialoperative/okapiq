@@ -27,9 +27,10 @@ export default function HomePage() {
             <div className="flex items-center space-x-8">
               <div className="text-2xl font-bold text-white">OkapIQ</div>
               <div className="hidden md:flex space-x-6">
-                <Link href="/solutions" className="text-gray-300 hover:text-white font-medium">
-                  Solutions
-                </Link>
+                <Link href="/solutions" className="text-gray-300 hover:text-white font-medium">Solutions</Link>
+                <Link href="/oppy" className="text-gray-300 hover:text-white font-medium">Oppy</Link>
+                <Link href="/fragment-finder" className="text-gray-300 hover:text-white font-medium">Fragment Finder</Link>
+                <Link href="/acquisition-assistant" className="text-gray-300 hover:text-white font-medium">Acquisition Assistant</Link>
                 <Link href="/case-studies" className="text-gray-300 hover:text-white font-medium">
                   Case Studies
                 </Link>

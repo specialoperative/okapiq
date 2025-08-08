@@ -341,6 +341,54 @@ export function CrawlerResults({ results }: CrawlerResultsProps) {
                                 : "Moderately fragmented industry with acquisition opportunities."}
                           </p>
                         </div>
+                        <div className="p-3 bg-green-50 rounded-md">
+                          <p className="text-xs text-green-700 font-medium">Digital Footprint</p>
+                          <div className="mt-1 grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="text-gray-500">Last Site Update:</span>
+                              <span className="ml-2 font-medium">{selectedBusiness.lastSiteUpdate || "Unknown"}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Digital Activity:</span>
+                              <span className="ml-2 font-medium">{selectedBusiness.digitalActivity || "Unknown"}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Ad Spend Est.:</span>
+                              <span className="ml-2 font-medium">{selectedBusiness.adSpendEst || "N/A"}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Succession Score:</span>
+                              <span className="ml-2 font-medium">{selectedBusiness.successionScore ?? "N/A"}</span>
+                            </div>
+                          </div>
+                          {selectedBusiness.services && selectedBusiness.services.length > 0 && (
+                            <div className="mt-2 text-sm">
+                              <span className="text-gray-500">Services:</span>
+                              <span className="ml-2 font-medium">{selectedBusiness.services.join(", ")}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-3 bg-green-50 rounded-md">
+                          <p className="text-xs text-green-700 font-medium">Reviews Summary</p>
+                          <div className="mt-1 text-sm">
+                            <span className="text-gray-500">Avg Sentiment:</span>
+                            <span className="ml-2 font-medium">{selectedBusiness.avgSentiment?.toFixed(2) ?? "N/A"}</span>
+                          </div>
+                          {selectedBusiness.reviewThemes && selectedBusiness.reviewThemes.length > 0 && (
+                            <div className="mt-1 text-sm">
+                              <span className="text-gray-500">Themes:</span>
+                              <span className="ml-2 font-medium">{selectedBusiness.reviewThemes.join(", ")}</span>
+                            </div>
+                          )}
+                          {selectedBusiness.dealReadiness && (
+                            <div className="mt-2">
+                              <span className="text-xs text-gray-500">Deal Readiness:</span>
+                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-white border border-green-200 text-green-800 text-xs font-medium">
+                                {selectedBusiness.dealReadiness}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

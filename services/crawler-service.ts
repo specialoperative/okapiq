@@ -1,5 +1,8 @@
 import { mockBusinessData } from "@/data/mock-business-data"
 import type { BusinessRecord } from "@/services/dataaxle-service"
+import { analyzeWebsite } from "@/services/website-crawler"
+import { summarizeReviews } from "@/services/reviews-agent"
+import { computeScores } from "@/services/scoring-engine"
 
 export interface CrawlerOptions {
   industry?: string
@@ -23,6 +26,16 @@ export interface CrawledBusiness {
   socialProfiles?: Record<string, string>
   arbitrageScore?: number // How undervalued the business might be
   fragmentationIndex?: number // Industry fragmentation score
+  // New enrichment fields
+  lastSiteUpdate?: string
+  services?: string[]
+  visualCheck?: string
+  avgSentiment?: number
+  reviewThemes?: string[]
+  adSpendEst?: string
+  digitalActivity?: string
+  successionScore?: number
+  dealReadiness?: "Low" | "Medium" | "High"
 }
 
 export class CrawlerService {
@@ -39,7 +52,8 @@ export class CrawlerService {
         const businesses = await this.getDataAxleBusinesses(options)
         if (businesses.length > 0) {
           console.log(`Found ${businesses.length} businesses from DataAxle API`)
-          return businesses
+          const enriched = await this.enrichBusinesses(businesses)
+          return enriched
         }
       } catch (error) {
         console.warn("Error using DataAxle API, falling back to mock data:", error)
@@ -52,7 +66,8 @@ export class CrawlerService {
       // Calculate arbitrage scores based on industry benchmarks
       businesses = this.calculateArbitrageScores(businesses)
 
-      return businesses
+      const enriched = await this.enrichBusinesses(businesses)
+      return enriched
     } catch (error) {
       console.error("Error in SMB crawler:", error)
       throw new Error(`Failed to crawl SMB data: ${error}`)
@@ -221,5 +236,30 @@ export class CrawlerService {
     }
 
     return scoredBusinesses
+  }
+
+  private async enrichBusinesses(businesses: CrawledBusiness[]): Promise<CrawledBusiness[]> {
+    const enriched = await Promise.all(
+      businesses.map(async (b) => {
+        const website = await analyzeWebsite(b.website, b.phone)
+        const reviews = await summarizeReviews(b.name)
+        const scores = computeScores(b, reviews, website)
+
+        return {
+          ...b,
+          lastSiteUpdate: website ? String(website.lastUpdatedYear) : undefined,
+          services: website?.services,
+          visualCheck: website?.visualCheck,
+          avgSentiment: reviews.avgSentiment,
+          reviewThemes: reviews.themes,
+          adSpendEst: `$${scores.adSpendEstimate}/mo`,
+          digitalActivity: scores.digitalHealth > 70 ? "High" : scores.digitalHealth > 40 ? "Medium" : "Low",
+          successionScore: scores.successionScore,
+          dealReadiness: scores.dealReadiness,
+        }
+      }),
+    )
+
+    return enriched
   }
 }

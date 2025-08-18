@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Intelligence Platform - Main Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            max-width: 1000px;
+            width: 90%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .platform-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .platform-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .platform-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        .platform-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        .platform-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .platform-features li {
+            color: #555;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-icon {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .platform-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .platform-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .api-status {
+            background: #e8f5e8;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .api-status h3 {
+            color: #27ae60;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .api-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .api-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>🚀 Business Intelligence Platform</h1>
+            <p>Comprehensive deal sourcing with multi-API integration, real-time TAM analysis, heatmaps, and CRM connectivity</p>
+        </div>
+
+        <div class="platforms-grid">
+            <div class="platform-card" onclick="window.open('/comprehensive', '_blank')">
+                <h3>🔍 Comprehensive Search</h3>
+                <p>Search any industry using all APIs simultaneously with buybox scoring and heatmap visualization</p>
+                <ul class="platform-features">
+                    <li><span class="feature-icon">✓</span> Multi-API integration (Yelp, Google, Census, Data Axle)</li>
+                    <li><span class="feature-icon">✓</span> Real-time TAM calculations</li>
+                    <li><span class="feature-icon">✓</span> Interactive heatmaps</li>
+                    <li><span class="feature-icon">✓</span> CRM export functionality</li>
+                    <li><span class="feature-icon">✓</span> Buybox scoring system</li>
+                </ul>
+                <button class="platform-btn">🚀 Launch Platform</button>
+            </div>
+
+            <div class="platform-card" onclick="window.open('/', '_blank')">
+                <h3>🎯 Dynamic Buybox Analyzer</h3>
+                <p>Define custom buybox criteria and get instant market analysis with fragmentation insights</p>
+                <ul class="platform-features">
+                    <li><span class="feature-icon">✓</span> Custom buybox definition</li>
+                    <li><span class="feature-icon">✓</span> Real-time filtering</li>
+                    <li><span class="feature-icon">✓</span> Market fragmentation analysis</li>
+                    <li><span class="feature-icon">✓</span> AI-powered insights</li>
+                    <li><span class="feature-icon">✓</span> 676 accounting firms loaded</li>
+                </ul>
+                <button class="platform-btn">📊 Analyze Markets</button>
+            </div>
+
+            <div class="platform-card" onclick="window.open('/avilla', '_blank')">
+                <h3>🏢 Avilla Partners Dashboard</h3>
+                <p>Specialized dashboard for accounting firm acquisitions in Massachusetts and Florida</p>
+                <ul class="platform-features">
+                    <li><span class="feature-icon">✓</span> 676 pre-loaded accounting firms</li>
+                    <li><span class="feature-icon">✓</span> Succession risk analysis</li>
+                    <li><span class="feature-icon">✓</span> Geographic targeting (MA/FL)</li>
+                    <li><span class="feature-icon">✓</span> Deal pipeline management</li>
+                    <li><span class="feature-icon">✓</span> Outreach generation</li>
+                </ul>
+                <button class="platform-btn">🎯 View Dashboard</button>
+            </div>
+
+            <div class="platform-card" onclick="window.open('/universal', '_blank')">
+                <h3>🌍 Universal TAM Analyzer</h3>
+                <p>AI-powered TAM analysis for any service business in any location using natural language</p>
+                <ul class="platform-features">
+                    <li><span class="feature-icon">✓</span> Natural language search</li>
+                    <li><span class="feature-icon">✓</span> OpenAI-powered analysis</li>
+                    <li><span class="feature-icon">✓</span> Industry-specific insights</li>
+                    <li><span class="feature-icon">✓</span> Location-based TAM</li>
+                    <li><span class="feature-icon">✓</span> Investment recommendations</li>
+                </ul>
+                <button class="platform-btn">🤖 Analyze Any Business</button>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h3 style="text-align: center; margin-bottom: 1.5rem; color: #2c3e50;">📊 Platform Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">676</div>
+                    <div class="stat-label">Businesses Loaded</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">APIs Integrated</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Industries Supported</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">$12.1B</div>
+                    <div class="stat-label">Total TAM Analyzed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">256</div>
+                    <div class="stat-label">High-Score Targets</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">Real-time</div>
+                    <div class="stat-label">Data Updates</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="api-status">
+            <h3>🔗 Live API Integrations</h3>
+            <div class="api-grid">
+                <div class="api-item">
+                    <div class="api-dot"></div>
+                    <strong>Yelp API</strong>
+                    <span>Reviews & Ratings</span>
+                </div>
+                <div class="api-item">
+                    <div class="api-dot"></div>
+                    <strong>Google Maps</strong>
+                    <span>Places & Coordinates</span>
+                </div>
+                <div class="api-item">
+                    <div class="api-dot"></div>
+                    <strong>US Census</strong>
+                    <span>Demographics</span>
+                </div>
+                <div class="api-item">
+                    <div class="api-dot"></div>
+                    <strong>Data Axle</strong>
+                    <span>Business Data</span>
+                </div>
+                <div class="api-item">
+                    <div class="api-dot"></div>
+                    <strong>OpenAI</strong>
+                    <span>AI Analysis</span>
+                </div>
+                <div class="api-item">
+                    <div class="api-dot"></div>
+                    <strong>Mastercard</strong>
+                    <span>Spend Data</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: #e8f4fd; border-radius: 8px;">
+            <h4 style="color: #2c3e50; margin-bottom: 0.5rem;">🔧 System Capabilities</h4>
+            <p style="color: #666;">Multi-API search • Real-time TAM analysis • Interactive heatmaps • Buybox scoring • CRM integration • AI insights</p>
+        </div>
+    </div>
+</body>
+</html>

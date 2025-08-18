@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Business Search & TAM Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .example-tag {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .example-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .results-container {
+            display: none;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .tam-overview {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tam-overview h3 {
+            color: white;
+        }
+        
+        .tam-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .tam-metric {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .tam-metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tam-metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .insight-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .insight-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .insight-icon {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #fcc;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #cfc;
+        }
+        
+        .quick-actions {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            background: white;
+            border: 2px solid #e1e5e9;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .action-btn h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .action-btn p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .methodology {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .data-sources {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .data-source {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Universal Business Search</h1>
+        <p>AI-powered TAM analysis for any service business in any location</p>
+    </div>
+
+    <div class="main-container">
+        <div class="search-section">
+            <div class="search-form">
+                <input type="text" id="business-query" class="search-input" 
+                       placeholder="e.g., pool cleaning services in Miami, HVAC contractors in Texas, dental practices under $5M">
+                <input type="text" id="location-input" class="search-input" 
+                       placeholder="Location (optional)">
+                <button id="search-btn" class="search-btn">
+                    <span id="search-text">🚀 Analyze Market</span>
+                    <div id="search-spinner" class="loading-spinner" style="display: none;"></div>
+                </button>
+            </div>
+            
+            <div class="examples">
+                <div class="example-tag" onclick="fillExample('pool cleaning services in Miami')">Pool Cleaning - Miami</div>
+                <div class="example-tag" onclick="fillExample('HVAC contractors in Texas')">HVAC - Texas</div>
+                <div class="example-tag" onclick="fillExample('dental practices under $5M revenue')">Dental Practices</div>
+                <div class="example-tag" onclick="fillExample('landscaping companies in California')">Landscaping - CA</div>
+                <div class="example-tag" onclick="fillExample('plumbing services in New York')">Plumbing - NY</div>
+                <div class="example-tag" onclick="fillExample('auto repair shops in Chicago')">Auto Repair - Chicago</div>
+                <div class="example-tag" onclick="fillExample('restaurants under $2M revenue')">Small Restaurants</div>
+                <div class="example-tag" onclick="fillExample('security services in Florida')">Security - FL</div>
+            </div>
+        </div>
+
+        <div id="results-container" class="results-container">
+            <div class="results-grid">
+                <div class="result-card tam-overview">
+                    <h3>💰 Total Addressable Market</h3>
+                    <div class="tam-metrics" id="tam-metrics">
+                        <!-- TAM metrics will be populated here -->
+                    </div>
+                    <div class="methodology" id="methodology">
+                        <!-- Methodology will be populated here -->
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h3>📊 Market Analysis</h3>
+                    <ul class="insight-list" id="market-insights">
+                        <!-- Market insights will be populated here -->
+                    </ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>🎯 Investment Insights</h3>
+                    <ul class="insight-list" id="investment-insights">
+                        <!-- Investment insights will be populated here -->
+                    </ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>🏢 Competitive Landscape</h3>
+                    <ul class="insight-list" id="competitive-insights">
+                        <!-- Competitive insights will be populated here -->
+                    </ul>
+                    <div class="chart-container">
+                        <canvas id="competition-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h3>📍 Location Analysis</h3>
+                    <ul class="insight-list" id="location-insights">
+                        <!-- Location insights will be populated here -->
+                    </ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>⚙️ Business Economics</h3>
+                    <ul class="insight-list" id="business-economics">
+                        <!-- Business economics will be populated here -->
+                    </ul>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3>🚀 Quick Actions</h3>
+                <div class="action-buttons">
+                    <div class="action-btn" onclick="generateDetailedReport()">
+                        <h4>📄 Detailed Report</h4>
+                        <p>Generate comprehensive investment report</p>
+                    </div>
+                    <div class="action-btn" onclick="calculateTAM()">
+                        <h4>🧮 TAM Calculator</h4>
+                        <p>Detailed TAM breakdown and assumptions</p>
+                    </div>
+                    <div class="action-btn" onclick="findComparables()">
+                        <h4>🔍 Find Comparables</h4>
+                        <p>Identify similar businesses and deals</p>
+                    </div>
+                    <div class="action-btn" onclick="exportAnalysis()">
+                        <h4>📊 Export Analysis</h4>
+                        <p>Download results as PDF or Excel</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-sources" id="data-sources">
+                <!-- Data sources will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentAnalysis = null;
+        const API_BASE = 'http://localhost:5000/api';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('search-btn').addEventListener('click', performSearch);
+            document.getElementById('business-query').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') performSearch();
+            });
+            document.getElementById('location-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') performSearch();
+            });
+        }
+
+        function fillExample(example) {
+            document.getElementById('business-query').value = example;
+            document.getElementById('location-input').value = '';
+        }
+
+        async function performSearch() {
+            const query = document.getElementById('business-query').value.trim();
+            const location = document.getElementById('location-input').value.trim();
+
+            if (!query) {
+                showError('Please enter a business type or search query');
+                return;
+            }
+
+            // Show loading state
+            setLoadingState(true);
+
+            try {
+                // Call universal search API
+                const response = await fetch(`${API_BASE}/universal-search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        location: location
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Search failed');
+                }
+
+                currentAnalysis = data;
+                displayResults(data);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Search failed: ' + error.message);
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.style.display = 'block';
+
+            const analysis = data.analysis;
+
+            // Display TAM metrics
+            displayTAMMetrics(analysis.market_analysis?.tam_estimate);
+
+            // Display market insights
+            displayMarketInsights(analysis.market_analysis);
+
+            // Display investment insights
+            displayInvestmentInsights(analysis.investment_insights);
+
+            // Display competitive insights
+            displayCompetitiveInsights(analysis.market_analysis?.competitive_landscape);
+
+            // Display location insights
+            displayLocationInsights(analysis.location_specific);
+
+            // Display business economics
+            displayBusinessEconomics(analysis.market_analysis?.key_metrics);
+
+            // Display data sources
+            displayDataSources(data.data_sources);
+
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayTAMMetrics(tamData) {
+            const container = document.getElementById('tam-metrics');
+            const methodology = document.getElementById('methodology');
+
+            if (!tamData) {
+                container.innerHTML = '<p>TAM data not available</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${tamData.local_market_size || 'N/A'}</div>
+                    <div class="tam-metric-label">Market Size</div>
+                </div>
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${tamData.number_of_businesses || 'N/A'}</div>
+                    <div class="tam-metric-label">Total Businesses</div>
+                </div>
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${tamData.average_business_revenue || 'N/A'}</div>
+                    <div class="tam-metric-label">Avg Revenue</div>
+                </div>
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${tamData.growth_rate || 'N/A'}</div>
+                    <div class="tam-metric-label">Growth Rate</div>
+                </div>
+            `;
+
+            methodology.innerHTML = `
+                <strong>Methodology:</strong> ${tamData.methodology || 'AI-powered analysis with industry benchmarks'}<br>
+                <strong>Confidence:</strong> ${tamData.confidence_level || 'Medium'}<br>
+                <strong>Market Maturity:</strong> ${tamData.market_maturity || 'N/A'}
+            `;
+        }
+
+        function displayMarketInsights(marketData) {
+            const container = document.getElementById('market-insights');
+            
+            if (!marketData) {
+                container.innerHTML = '<li>Market analysis not available</li>';
+                return;
+            }
+
+            let insights = [];
+            
+            if (marketData.competitive_landscape) {
+                const comp = marketData.competitive_landscape;
+                insights.push(`Fragmentation Level: ${comp.fragmentation_level || 'N/A'}`);
+                insights.push(`Entry Barriers: ${comp.barriers_to_entry || 'N/A'}`);
+                insights.push(`Typical Multiples: ${comp.typical_multiples || 'N/A'}`);
+            }
+
+            if (marketData.key_metrics) {
+                const metrics = marketData.key_metrics;
+                if (metrics.seasonal_factors) insights.push(`Seasonality: ${metrics.seasonal_factors}`);
+                if (metrics.revenue_model) insights.push(`Revenue Model: ${metrics.revenue_model}`);
+            }
+
+            container.innerHTML = insights.map(insight => `
+                <li>
+                    <div class="insight-icon">📊</div>
+                    <span>${insight}</span>
+                </li>
+            `).join('');
+        }
+
+        function displayInvestmentInsights(investmentData) {
+            const container = document.getElementById('investment-insights');
+            
+            if (!investmentData) {
+                container.innerHTML = '<li>Investment analysis not available</li>';
+                return;
+            }
+
+            let insights = [];
+            
+            if (investmentData.acquisition_attractiveness) {
+                insights.push(`Attractiveness: ${investmentData.acquisition_attractiveness}`);
+            }
+            if (investmentData.typical_deal_size) {
+                insights.push(`Deal Size: ${investmentData.typical_deal_size}`);
+            }
+            if (investmentData.roll_up_potential) {
+                insights.push(`Roll-up Potential: ${investmentData.roll_up_potential}`);
+            }
+
+            if (investmentData.key_success_factors) {
+                investmentData.key_success_factors.forEach(factor => {
+                    insights.push(`Success Factor: ${factor}`);
+                });
+            }
+
+            container.innerHTML = insights.map(insight => `
+                <li>
+                    <div class="insight-icon">🎯</div>
+                    <span>${insight}</span>
+                </li>
+            `).join('');
+        }
+
+        function displayCompetitiveInsights(compData) {
+            const container = document.getElementById('competitive-insights');
+            
+            if (!compData) {
+                container.innerHTML = '<li>Competitive analysis not available</li>';
+                return;
+            }
+
+            let insights = [];
+            
+            if (compData.fragmentation_level) {
+                insights.push(`Market Fragmentation: ${compData.fragmentation_level}`);
+            }
+            if (compData.consolidation_opportunity) {
+                insights.push(`Consolidation Opportunity: ${compData.consolidation_opportunity}`);
+            }
+            if (compData.barriers_to_entry) {
+                insights.push(`Entry Barriers: ${compData.barriers_to_entry}`);
+            }
+
+            container.innerHTML = insights.map(insight => `
+                <li>
+                    <div class="insight-icon">🏢</div>
+                    <span>${insight}</span>
+                </li>
+            `).join('');
+        }
+
+        function displayLocationInsights(locationData) {
+            const container = document.getElementById('location-insights');
+            
+            if (!locationData) {
+                container.innerHTML = '<li>Location analysis not available</li>';
+                return;
+            }
+
+            let insights = [];
+            
+            if (locationData.market_characteristics) {
+                insights.push(`Market: ${locationData.market_characteristics}`);
+            }
+            if (locationData.regulatory_environment) {
+                insights.push(`Regulations: ${locationData.regulatory_environment}`);
+            }
+            if (locationData.demographic_factors) {
+                insights.push(`Demographics: ${locationData.demographic_factors}`);
+            }
+
+            container.innerHTML = insights.map(insight => `
+                <li>
+                    <div class="insight-icon">📍</div>
+                    <span>${insight}</span>
+                </li>
+            `).join('');
+        }
+
+        function displayBusinessEconomics(economicsData) {
+            const container = document.getElementById('business-economics');
+            
+            if (!economicsData) {
+                container.innerHTML = '<li>Business economics not available</li>';
+                return;
+            }
+
+            let insights = [];
+            
+            if (economicsData.revenue_model) {
+                insights.push(`Revenue Model: ${economicsData.revenue_model}`);
+            }
+            if (economicsData.operational_factors) {
+                insights.push(`Operations: ${economicsData.operational_factors}`);
+            }
+
+            container.innerHTML = insights.map(insight => `
+                <li>
+                    <div class="insight-icon">⚙️</div>
+                    <span>${insight}</span>
+                </li>
+            `).join('');
+        }
+
+        function displayDataSources(sources) {
+            const container = document.getElementById('data-sources');
+            
+            if (!sources || sources.length === 0) return;
+
+            container.innerHTML = sources.map(source => `
+                <div class="data-source">${source}</div>
+            `).join('');
+        }
+
+        function setLoadingState(loading) {
+            const btn = document.getElementById('search-btn');
+            const text = document.getElementById('search-text');
+            const spinner = document.getElementById('search-spinner');
+
+            if (loading) {
+                btn.disabled = true;
+                text.textContent = 'Analyzing...';
+                spinner.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                text.textContent = '🚀 Analyze Market';
+                spinner.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const container = document.getElementById('results-container');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+            container.style.display = 'block';
+        }
+
+        // Quick action functions
+        async function generateDetailedReport() {
+            if (!currentAnalysis) return;
+            
+            showSuccess('Generating detailed report...');
+            // Implementation for detailed report generation
+        }
+
+        async function calculateTAM() {
+            if (!currentAnalysis) return;
+            
+            const query = document.getElementById('business-query').value;
+            const location = document.getElementById('location-input').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/tam-calculator`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        business_type: currentAnalysis.analysis.business_type,
+                        location: location,
+                        parameters: {}
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('Detailed TAM calculation completed');
+                    // Display detailed TAM results
+                    console.log('TAM Analysis:', data);
+                } else {
+                    showError('TAM calculation failed: ' + data.error);
+                }
+            } catch (error) {
+                showError('TAM calculation failed: ' + error.message);
+            }
+        }
+
+        function findComparables() {
+            showSuccess('Searching for comparable businesses...');
+            // Implementation for finding comparables
+        }
+
+        function exportAnalysis() {
+            if (!currentAnalysis) return;
+            
+            const dataStr = JSON.stringify(currentAnalysis, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'business_analysis.json';
+            link.click();
+            
+            showSuccess('Analysis exported successfully');
+        }
+
+        function showSuccess(message) {
+            // Create temporary success message
+            const div = document.createElement('div');
+            div.className = 'success-message';
+            div.textContent = message;
+            div.style.position = 'fixed';
+            div.style.top = '20px';
+            div.style.right = '20px';
+            div.style.zIndex = '10000';
+            
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                document.body.removeChild(div);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

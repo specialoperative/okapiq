@@ -1,0 +1,104 @@
+{
+  "total_firms": 676,
+  "ma_firms": 232,
+  "fl_firms": 444,
+  "high_score_firms": 256,
+  "succession_opportunities": 96,
+  "avg_revenue": 4957362.912721894,
+  "avg_deal_score": 77.00692307692313,
+  "top_metros": {
+    "Boston": {
+      "count": 167,
+      "avg_score": 78.90173652694612,
+      "total_score": 13176.590000000004
+    },
+    "Tallahassee": {
+      "count": 8,
+      "avg_score": 78.53499999999998,
+      "total_score": 628.2799999999999
+    },
+    "Miami": {
+      "count": 154,
+      "avg_score": 78.36740259740255,
+      "total_score": 12068.579999999993
+    },
+    "Sarasota": {
+      "count": 8,
+      "avg_score": 77.37,
+      "total_score": 618.96
+    },
+    "Tampa": {
+      "count": 79,
+      "avg_score": 76.9621518987342,
+      "total_score": 6080.010000000002
+    },
+    "Naples": {
+      "count": 16,
+      "avg_score": 76.8475,
+      "total_score": 1229.56
+    },
+    "Orlando": {
+      "count": 77,
+      "avg_score": 76.47116883116878,
+      "total_score": 5888.279999999996
+    },
+    "Jacksonville": {
+      "count": 24,
+      "avg_score": 75.96166666666666,
+      "total_score": 1823.08
+    },
+    "Lowell": {
+      "count": 16,
+      "avg_score": 75.74249999999999,
+      "total_score": 1211.8799999999999
+    },
+    "West Palm Beach": {
+      "count": 24,
+      "avg_score": 75.67666666666669,
+      "total_score": 1816.2400000000007
+    },
+    "Cape Coral": {
+      "count": 7,
+      "avg_score": 75.16714285714286,
+      "total_score": 526.1700000000001
+    },
+    "Fort Lauderdale": {
+      "count": 24,
+      "avg_score": 75.01999999999998,
+      "total_score": 1800.4799999999996
+    },
+    "Gainesville": {
+      "count": 8,
+      "avg_score": 73.30499999999999,
+      "total_score": 586.4399999999999
+    },
+    "Worcester": {
+      "count": 30,
+      "avg_score": 73.24733333333337,
+      "total_score": 2197.420000000001
+    },
+    "Springfield": {
+      "count": 19,
+      "avg_score": 71.5257894736842,
+      "total_score": 1358.9899999999998
+    },
+    "Fort Myers": {
+      "count": 8,
+      "avg_score": 71.48,
+      "total_score": 571.84
+    },
+    "Pensacola": {
+      "count": 7,
+      "avg_score": 67.69714285714285,
+      "total_score": 473.88
+    }
+  },
+  "subindustry_breakdown": {
+    "Payroll Services": 125,
+    "Bookkeeping Services": 114,
+    "Forensic Accounting": 104,
+    "CPA Firms": 110,
+    "Tax Preparation": 128,
+    "Estate Planning": 95
+  }
+}

@@ -1,0 +1,371 @@
+{
+  "dashboard_config": {
+    "title": "Avilla Peak Partners - Accounting Firm Sourcing Platform",
+    "default_view": "map",
+    "refresh_interval": 300000,
+    "auto_save_filters": true
+  },
+  "map_settings": {
+    "default_center": [42.3601, -71.0589],
+    "default_zoom": 8,
+    "heatmap_layers": [
+      {
+        "id": "deal_score",
+        "name": "Deal Score Intensity",
+        "color_scale": ["#2ECC71", "#F39C12", "#E74C3C"],
+        "opacity": 0.7,
+        "default_active": true
+      },
+      {
+        "id": "wealth_index", 
+        "name": "Zip Code Wealth",
+        "color_scale": ["#3498DB", "#9B59B6", "#E91E63"],
+        "opacity": 0.6,
+        "default_active": false
+      },
+      {
+        "id": "formation_rate",
+        "name": "Business Formation Rate", 
+        "color_scale": ["#1ABC9C", "#16A085", "#0E6B5C"],
+        "opacity": 0.6,
+        "default_active": false
+      },
+      {
+        "id": "succession_risk",
+        "name": "Succession Risk Density",
+        "color_scale": ["#F1C40F", "#E67E22", "#C0392B"],
+        "opacity": 0.6,
+        "default_active": false
+      }
+    ],
+    "firm_markers": {
+      "size_scale": [8, 16, 24],
+      "color_by_score": {
+        "high": "#27AE60",
+        "medium": "#F39C12", 
+        "low": "#E74C3C"
+      }
+    }
+  },
+  "search_config": {
+    "global_search": {
+      "placeholder": "Search firms, owners, locations...",
+      "autocomplete": true,
+      "fuzzy_matching": true,
+      "search_fields": ["firm_name", "owner_name", "city", "zip", "domain"]
+    },
+    "ai_search": {
+      "enabled": true,
+      "placeholder": "Ask AI: 'Find tax firms in wealthy Boston suburbs with retiring owners'",
+      "model": "gpt-4",
+      "context_window": 4000
+    }
+  },
+  "filter_controls": [
+    {
+      "id": "state_filter",
+      "type": "multi_select",
+      "label": "States",
+      "options": [
+        {"value": "MA", "label": "Massachusetts"},
+        {"value": "FL", "label": "Florida"}
+      ],
+      "default": ["MA", "FL"]
+    },
+    {
+      "id": "subindustry_filter", 
+      "type": "multi_select",
+      "label": "Sub-Industries",
+      "options": [
+        {"value": "cpa", "label": "CPA Firms"},
+        {"value": "tax_prep", "label": "Tax Preparation"},
+        {"value": "bookkeeping", "label": "Bookkeeping Services"},
+        {"value": "payroll", "label": "Payroll Services"},
+        {"value": "forensic", "label": "Forensic Accounting"},
+        {"value": "estate", "label": "Estate Planning"}
+      ],
+      "default": ["cpa", "tax_prep", "bookkeeping"]
+    },
+    {
+      "id": "revenue_range",
+      "type": "dual_slider", 
+      "label": "Revenue Range (Millions)",
+      "min": 0.5,
+      "max": 10.0,
+      "step": 0.1,
+      "default": [1.0, 5.0],
+      "format": "$%.1fM"
+    },
+    {
+      "id": "deal_score",
+      "type": "slider",
+      "label": "Minimum Deal Score",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 70,
+      "format": "%d/100"
+    },
+    {
+      "id": "wealth_index",
+      "type": "slider", 
+      "label": "Zip Code Wealth Index",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 60,
+      "labels": {
+        "0": "Low",
+        "50": "Medium", 
+        "100": "High"
+      }
+    },
+    {
+      "id": "website_status",
+      "type": "radio",
+      "label": "Website Status",
+      "options": [
+        {"value": "any", "label": "Any"},
+        {"value": "has_website", "label": "Has Website"},
+        {"value": "no_website", "label": "No Website"},
+        {"value": "outdated", "label": "Outdated Website"}
+      ],
+      "default": "any"
+    },
+    {
+      "id": "succession_risk",
+      "type": "multi_select",
+      "label": "Succession Risk",
+      "options": [
+        {"value": "low", "label": "Low Risk (<40%)"},
+        {"value": "medium", "label": "Medium Risk (40-60%)"},
+        {"value": "high", "label": "High Risk (>60%)"}
+      ],
+      "default": ["medium", "high"]
+    },
+    {
+      "id": "review_metrics",
+      "type": "compound",
+      "label": "Review Metrics",
+      "controls": [
+        {
+          "id": "review_count",
+          "type": "slider",
+          "label": "Min Review Count",
+          "min": 0,
+          "max": 200,
+          "default": 5
+        },
+        {
+          "id": "avg_rating",
+          "type": "slider",
+          "label": "Min Average Rating",
+          "min": 1.0,
+          "max": 5.0,
+          "step": 0.1,
+          "default": 3.5,
+          "format": "%.1f stars"
+        }
+      ]
+    },
+    {
+      "id": "formation_rate",
+      "type": "slider",
+      "label": "Business Formation Rate",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "default": 8,
+      "format": "%.1f per 1K adults"
+    }
+  ],
+  "table_config": {
+    "columns": [
+      {
+        "id": "firm_name",
+        "label": "Firm Name",
+        "sortable": true,
+        "width": 200,
+        "type": "link"
+      },
+      {
+        "id": "location", 
+        "label": "Location",
+        "sortable": true,
+        "width": 150,
+        "format": "{city}, {state}"
+      },
+      {
+        "id": "subindustry",
+        "label": "Sub-Industry", 
+        "sortable": true,
+        "width": 120,
+        "type": "badge"
+      },
+      {
+        "id": "revenue_est",
+        "label": "Est. Revenue",
+        "sortable": true,
+        "width": 100,
+        "format": "${value}M",
+        "type": "currency"
+      },
+      {
+        "id": "website_status",
+        "label": "Website",
+        "sortable": true,
+        "width": 80,
+        "type": "icon_status",
+        "icons": {
+          "true": "✅",
+          "false": "❌",
+          "outdated": "⚠️"
+        }
+      },
+      {
+        "id": "reviews",
+        "label": "Reviews",
+        "sortable": true, 
+        "width": 100,
+        "format": "{count} ({rating}★)"
+      },
+      {
+        "id": "succession_risk",
+        "label": "Succession Risk",
+        "sortable": true,
+        "width": 120,
+        "type": "progress_bar",
+        "color_scale": {
+          "low": "#27AE60",
+          "medium": "#F39C12",
+          "high": "#E74C3C"
+        }
+      },
+      {
+        "id": "deal_score",
+        "label": "Deal Score",
+        "sortable": true,
+        "width": 100,
+        "type": "score",
+        "format": "{value}/100"
+      },
+      {
+        "id": "actions",
+        "label": "Actions",
+        "sortable": false,
+        "width": 120,
+        "type": "action_buttons",
+        "buttons": [
+          {"id": "view", "label": "View", "icon": "👁️"},
+          {"id": "save", "label": "Save", "icon": "💾"},
+          {"id": "contact", "label": "Contact", "icon": "📧"}
+        ]
+      }
+    ],
+    "pagination": {
+      "page_sizes": [25, 50, 100, 200],
+      "default_page_size": 50
+    },
+    "sorting": {
+      "default_column": "deal_score",
+      "default_direction": "desc"
+    }
+  },
+  "ai_features": {
+    "natural_language_search": {
+      "enabled": true,
+      "examples": [
+        "Find CPA firms in Boston with no website and high succession risk",
+        "Show me tax preparation companies in wealthy Florida zip codes",
+        "Bookkeeping services under $2M revenue with good reviews",
+        "Forensic accounting firms owned by people over 60"
+      ]
+    },
+    "fragmentation_analysis": {
+      "enabled": true,
+      "trigger_button": "Analyze Market Fragmentation",
+      "metrics": [
+        "hhi_index",
+        "top5_concentration", 
+        "firm_density",
+        "market_opportunity_score"
+      ]
+    },
+    "deal_insights": {
+      "enabled": true,
+      "auto_generate": true,
+      "insight_types": [
+        "market_context",
+        "competitive_analysis", 
+        "succession_signals",
+        "valuation_benchmarks",
+        "outreach_recommendations"
+      ]
+    },
+    "outreach_generator": {
+      "enabled": true,
+      "templates": [
+        "succession_opportunity",
+        "market_consolidation",
+        "growth_partnership",
+        "strategic_acquisition"
+      ]
+    }
+  },
+  "export_options": [
+    {
+      "id": "csv_export",
+      "label": "Export to CSV",
+      "format": "csv",
+      "fields": "all"
+    },
+    {
+      "id": "excel_export", 
+      "label": "Export to Excel",
+      "format": "xlsx",
+      "include_charts": true
+    },
+    {
+      "id": "pdf_report",
+      "label": "Generate PDF Report", 
+      "format": "pdf",
+      "template": "investment_committee"
+    },
+    {
+      "id": "crm_export",
+      "label": "Export to CRM",
+      "format": "json",
+      "crm_systems": ["salesforce", "hubspot", "pipedrive"]
+    }
+  ],
+  "pipeline_management": {
+    "stages": [
+      {"id": "sourced", "label": "Sourced", "color": "#3498DB"},
+      {"id": "contacted", "label": "Contacted", "color": "#9B59B6"},
+      {"id": "qualified", "label": "Qualified", "color": "#E67E22"},
+      {"id": "nda", "label": "NDA Signed", "color": "#F39C12"},
+      {"id": "cim", "label": "CIM Review", "color": "#E74C3C"},
+      {"id": "loi", "label": "LOI Submitted", "color": "#C0392B"},
+      {"id": "qoe", "label": "Quality of Earnings", "color": "#8E44AD"},
+      {"id": "closed", "label": "Closed", "color": "#27AE60"}
+    ],
+    "auto_stage_progression": true,
+    "reminder_notifications": true
+  },
+  "api_configuration": {
+    "rate_limiting": {
+      "requests_per_minute": 60,
+      "burst_limit": 100,
+      "fallback_enabled": true
+    },
+    "data_refresh": {
+      "firm_data": "daily",
+      "market_data": "weekly", 
+      "demographic_data": "monthly"
+    },
+    "api_keys": {
+      "rotation_enabled": true,
+      "health_check_interval": 300
+    }
+  }
+}

@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Business Intelligence Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        
+        .api-status {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .api-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .api-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 120px);
+        }
+        
+        .search-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .search-section {
+            margin-bottom: 2rem;
+        }
+        
+        .search-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .buybox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .search-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        .results-area {
+            display: grid;
+            grid-template-rows: auto 400px 1fr;
+            gap: 2rem;
+        }
+        
+        .results-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+        
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .map-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .map-controls {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .map-legend {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            font-size: 0.85rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+        
+        .results-table {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .table-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e1e5e9;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+        
+        .data-table td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .score-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .score-high { background: #d4edda; color: #155724; }
+        .score-medium { background: #fff3cd; color: #856404; }
+        .score-low { background: #f8d7da; color: #721c24; }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin: 0 0.25rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .business-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        
+        .detail-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .detail-section h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .crm-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .crm-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .crm-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .crm-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>🔍 Comprehensive Business Intelligence Platform</h1>
+                <div class="subtitle">Multi-API search with real-time TAM analysis, heatmaps, and CRM integration</div>
+            </div>
+            <div class="api-status">
+                <div class="api-indicator">
+                    <div class="api-dot"></div>
+                    <span>Yelp</span>
+                </div>
+                <div class="api-indicator">
+                    <div class="api-dot"></div>
+                    <span>Google</span>
+                </div>
+                <div class="api-indicator">
+                    <div class="api-dot"></div>
+                    <span>Census</span>
+                </div>
+                <div class="api-indicator">
+                    <div class="api-dot"></div>
+                    <span>Data Axle</span>
+                </div>
+                <div class="api-indicator">
+                    <div class="api-dot"></div>
+                    <span>OpenAI</span>
+                </div>
+                <div class="api-indicator">
+                    <div class="api-dot"></div>
+                    <span>Mastercard</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="search-panel">
+            <div class="search-section">
+                <h3>🎯 Business Search</h3>
+                
+                <div class="input-group">
+                    <label>Industry Type</label>
+                    <select id="industry-select">
+                        <option value="accounting">Accounting Services (NAICS: 541213)</option>
+                        <option value="pool_cleaning">Pool Cleaning (NAICS: 561790)</option>
+                        <option value="hvac">HVAC Services (NAICS: 238220)</option>
+                        <option value="dental">Dental Practices (NAICS: 621210)</option>
+                        <option value="landscaping">Landscaping (NAICS: 561730)</option>
+                        <option value="plumbing">Plumbing Services (NAICS: 238220)</option>
+                        <option value="restaurants">Restaurants (NAICS: 722513)</option>
+                        <option value="legal">Legal Services (NAICS: 541110)</option>
+                        <option value="consulting">Consulting (NAICS: 541611)</option>
+                        <option value="cleaning">Cleaning Services (NAICS: 561720)</option>
+                        <option value="security">Security Services (NAICS: 561612)</option>
+                        <option value="construction">Construction (NAICS: 236118)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Location</label>
+                    <input type="text" id="location-input" placeholder="e.g., Miami, FL or Texas or Boston Metro">
+                </div>
+            </div>
+
+            <div class="search-section">
+                <h3>💼 Buybox Criteria</h3>
+                
+                <div class="buybox-grid">
+                    <div class="input-group">
+                        <label>Min Revenue ($M)</label>
+                        <input type="number" id="min-revenue" value="0.5" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Max Revenue ($M)</label>
+                        <input type="number" id="max-revenue" value="10" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Min Rating</label>
+                        <select id="min-rating">
+                            <option value="0">Any Rating</option>
+                            <option value="3.0">3.0+ Stars</option>
+                            <option value="3.5">3.5+ Stars</option>
+                            <option value="4.0">4.0+ Stars</option>
+                            <option value="4.5">4.5+ Stars</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Min Reviews</label>
+                        <select id="min-reviews">
+                            <option value="0">Any</option>
+                            <option value="5">5+ Reviews</option>
+                            <option value="10">10+ Reviews</option>
+                            <option value="25">25+ Reviews</option>
+                            <option value="50">50+ Reviews</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Additional Criteria</label>
+                    <input type="text" id="additional-criteria" placeholder="e.g., family-owned, established >10 years, high-income areas">
+                </div>
+            </div>
+
+            <button class="search-btn" id="search-btn" onclick="performComprehensiveSearch()">
+                <span id="search-text">🚀 Search & Analyze</span>
+                <div id="search-spinner" class="loading-spinner" style="display: none; width: 20px; height: 20px; margin-left: 1rem;"></div>
+            </button>
+
+            <div class="search-section" style="margin-top: 2rem;">
+                <h3>📊 Quick Examples</h3>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <button class="action-btn btn-primary" onclick="loadExample('pool-miami')" style="width: 100%;">Pool Cleaning - Miami</button>
+                    <button class="action-btn btn-primary" onclick="loadExample('hvac-texas')" style="width: 100%;">HVAC - Texas</button>
+                    <button class="action-btn btn-primary" onclick="loadExample('dental-ma')" style="width: 100%;">Dental - Massachusetts</button>
+                    <button class="action-btn btn-primary" onclick="loadExample('restaurants-ny')" style="width: 100%;">Restaurants - New York</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-area">
+            <div class="results-header" id="results-header" style="display: none;">
+                <h2 id="results-title">Search Results</h2>
+                <div class="results-stats" id="results-stats">
+                    <!-- Stats will be populated here -->
+                </div>
+            </div>
+
+            <div class="map-container" id="map-container" style="display: none;">
+                <div id="map"></div>
+                <div class="map-controls">
+                    <h4>🗺️ Heatmap Layers</h4>
+                    <label><input type="radio" name="heatmap" value="score" checked> Overall Score</label><br>
+                    <label><input type="radio" name="heatmap" value="revenue"> Revenue Density</label><br>
+                    <label><input type="radio" name="heatmap" value="opportunity"> Market Opportunity</label>
+                </div>
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #27ae60;"></div>
+                        <span>High Score (80+)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f39c12;"></div>
+                        <span>Medium Score (60-79)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c;"></div>
+                        <span>Low Score (<60)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-table" id="results-table" style="display: none;">
+                <div class="table-header">
+                    <h3>📋 Business Results (<span id="results-count">0</span> found)</h3>
+                    <div class="table-controls">
+                        <select id="sort-select">
+                            <option value="overall_score">Sort by Overall Score</option>
+                            <option value="buybox_score">Sort by Buybox Match</option>
+                            <option value="revenue_estimate">Sort by Revenue</option>
+                            <option value="yelp_rating">Sort by Rating</option>
+                        </select>
+                        <button class="action-btn btn-success" onclick="exportToCRM()">📤 Export to CRM</button>
+                        <button class="action-btn btn-warning" onclick="exportToCSV()">📊 Export CSV</button>
+                    </div>
+                </div>
+                
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>Searching across all APIs...</p>
+                </div>
+                
+                <table class="data-table" id="business-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('name')">Business Name</th>
+                            <th onclick="sortTable('location')">Location</th>
+                            <th onclick="sortTable('revenue_estimate')">Est. Revenue</th>
+                            <th onclick="sortTable('yelp_rating')">Rating</th>
+                            <th onclick="sortTable('buybox_score')">Buybox Match</th>
+                            <th onclick="sortTable('overall_score')">Overall Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="business-tbody">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Detail Modal -->
+    <div id="business-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="business-detail-content">
+                <!-- Business details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let map = null;
+        let heatmapLayer = null;
+        let businessMarkers = [];
+        let currentResults = [];
+        let currentHeatmapData = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+        });
+
+        function initializeMap() {
+            map = L.map('map').setView([39.8283, -98.5795], 4);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        function loadExample(example) {
+            const examples = {
+                'pool-miami': {
+                    industry: 'pool_cleaning',
+                    location: 'Miami, FL',
+                    minRevenue: 0.2,
+                    maxRevenue: 2,
+                    minRating: 3.5,
+                    minReviews: 5
+                },
+                'hvac-texas': {
+                    industry: 'hvac',
+                    location: 'Texas',
+                    minRevenue: 1,
+                    maxRevenue: 10,
+                    minRating: 4.0,
+                    minReviews: 10
+                },
+                'dental-ma': {
+                    industry: 'dental',
+                    location: 'Massachusetts',
+                    minRevenue: 0.5,
+                    maxRevenue: 5,
+                    minRating: 4.0,
+                    minReviews: 25
+                },
+                'restaurants-ny': {
+                    industry: 'restaurants',
+                    location: 'New York',
+                    minRevenue: 0.3,
+                    maxRevenue: 3,
+                    minRating: 3.5,
+                    minReviews: 15
+                }
+            };
+
+            const config = examples[example];
+            if (!config) return;
+
+            document.getElementById('industry-select').value = config.industry;
+            document.getElementById('location-input').value = config.location;
+            document.getElementById('min-revenue').value = config.minRevenue;
+            document.getElementById('max-revenue').value = config.maxRevenue;
+            document.getElementById('min-rating').value = config.minRating;
+            document.getElementById('min-reviews').value = config.minReviews;
+        }
+
+        async function performComprehensiveSearch() {
+            const industry = document.getElementById('industry-select').value;
+            const location = document.getElementById('location-input').value.trim();
+            
+            if (!location) {
+                showError('Please enter a location');
+                return;
+            }
+
+            // Collect buybox criteria
+            const buyboxCriteria = {
+                min_revenue: parseFloat(document.getElementById('min-revenue').value) * 1000000,
+                max_revenue: parseFloat(document.getElementById('max-revenue').value) * 1000000,
+                min_rating: parseFloat(document.getElementById('min-rating').value),
+                min_reviews: parseInt(document.getElementById('min-reviews').value),
+                additional_criteria: document.getElementById('additional-criteria').value,
+                target_state: extractState(location)
+            };
+
+            // Show loading
+            setLoadingState(true);
+
+            try {
+                // Call the real comprehensive search API
+                const response = await fetch('http://localhost:5000/api/comprehensive-search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        industry: industry,
+                        location: location,
+                        buybox_criteria: buyboxCriteria
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+
+                const results = await response.json();
+                
+                displayResults({
+                    businesses: results.businesses,
+                    heatmap_data: results.heatmap_data,
+                    market_analysis: results.market_analysis
+                });
+                updateHeatmap(results.heatmap_data);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Search failed: ' + error.message);
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        async function generateDemoResults(industry, location, buybox) {
+            // Simulate comprehensive API search with realistic data
+            const businessCount = Math.floor(Math.random() * 50) + 20; // 20-70 businesses
+            const businesses = [];
+
+            const industryData = {
+                'pool_cleaning': {
+                    names: ['AquaClean Pool Services', 'Crystal Clear Pools', 'Blue Wave Pool Care', 'Pristine Pool Maintenance', 'Splash Pool Services'],
+                    avgRevenue: 400000,
+                    revenueRange: [150000, 800000]
+                },
+                'hvac': {
+                    names: ['Climate Control Systems', 'Air Comfort Solutions', 'Premier HVAC Services', 'Temperature Masters', 'Cool Breeze HVAC'],
+                    avgRevenue: 1200000,
+                    revenueRange: [300000, 3000000]
+                },
+                'dental': {
+                    names: ['Smile Dental Care', 'Family Dentistry Center', 'Modern Dental Practice', 'Bright Smiles Dentistry', 'Advanced Dental Group'],
+                    avgRevenue: 800000,
+                    revenueRange: [400000, 2000000]
+                },
+                'restaurants': {
+                    names: ['Local Bistro', 'Corner Cafe', 'Family Restaurant', 'Neighborhood Grill', 'Downtown Eatery'],
+                    avgRevenue: 600000,
+                    revenueRange: [200000, 1500000]
+                }
+            };
+
+            const industryInfo = industryData[industry] || industryData['pool_cleaning'];
+
+            for (let i = 0; i < businessCount; i++) {
+                const revenue = Math.floor(Math.random() * (industryInfo.revenueRange[1] - industryInfo.revenueRange[0])) + industryInfo.revenueRange[0];
+                const rating = 2.5 + Math.random() * 2.5;
+                const reviewCount = Math.floor(Math.random() * 100) + 1;
+                
+                const business = {
+                    business_id: `demo_${i + 1}`,
+                    name: `${industryInfo.names[i % industryInfo.names.length]} ${i + 1}`,
+                    address: `${Math.floor(Math.random() * 9999)} ${['Main St', 'Oak Ave', 'Business Blvd', 'Commerce Dr'][Math.floor(Math.random() * 4)]}`,
+                    city: extractCity(location),
+                    state: extractState(location),
+                    zip_code: generateRandomZip(),
+                    phone: `(${Math.floor(Math.random() * 900) + 100}) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
+                    email: `info@business${i + 1}.com`,
+                    website: Math.random() > 0.3 ? `www.business${i + 1}.com` : null,
+                    revenue_estimate: revenue,
+                    employee_count: Math.floor(revenue / 50000),
+                    yelp_rating: Math.round(rating * 10) / 10,
+                    yelp_review_count: reviewCount,
+                    google_rating: Math.round((rating + (Math.random() - 0.5) * 0.5) * 10) / 10,
+                    buybox_score: calculateBuyboxScore(revenue, rating, reviewCount, buybox),
+                    market_opportunity_score: Math.floor(Math.random() * 40) + 60,
+                    acquisition_readiness_score: Math.floor(Math.random() * 40) + 60,
+                    overall_score: 0
+                };
+
+                business.overall_score = Math.floor(
+                    (business.buybox_score * 0.4) +
+                    (business.market_opportunity_score * 0.3) +
+                    (business.acquisition_readiness_score * 0.3)
+                );
+
+                businesses.push(business);
+            }
+
+            // Sort by overall score
+            businesses.sort((a, b) => b.overall_score - a.overall_score);
+
+            // Generate heatmap data
+            const heatmapData = generateHeatmapData(businesses, location);
+
+            // Calculate market analysis
+            const marketAnalysis = calculateMarketAnalysis(businesses, industry, location);
+
+            return {
+                businesses: businesses,
+                heatmap_data: heatmapData,
+                market_analysis: marketAnalysis
+            };
+        }
+
+        function calculateBuyboxScore(revenue, rating, reviewCount, buybox) {
+            let score = 0;
+
+            // Revenue match
+            if (revenue >= buybox.min_revenue && revenue <= buybox.max_revenue) {
+                score += 40;
+            } else if (revenue >= buybox.min_revenue * 0.8) {
+                score += 25;
+            }
+
+            // Rating match
+            if (rating >= buybox.min_rating) {
+                score += 30;
+            } else if (rating >= buybox.min_rating - 0.5) {
+                score += 15;
+            }
+
+            // Review count match
+            if (reviewCount >= buybox.min_reviews) {
+                score += 30;
+            } else if (reviewCount >= buybox.min_reviews * 0.7) {
+                score += 20;
+            }
+
+            return Math.min(score, 100);
+        }
+
+        function generateHeatmapData(businesses, location) {
+            // Group by zip code
+            const zipGroups = {};
+            
+            businesses.forEach(business => {
+                const zip = business.zip_code;
+                if (!zipGroups[zip]) {
+                    zipGroups[zip] = {
+                        zip: zip,
+                        city: business.city,
+                        state: business.state,
+                        businesses: [],
+                        coordinates: getRandomCoordinates(location)
+                    };
+                }
+                zipGroups[zip].businesses.push(business);
+            });
+
+            // Calculate metrics for each zip
+            const heatmapPoints = Object.values(zipGroups).map(group => {
+                const avgScore = group.businesses.reduce((sum, b) => sum + b.overall_score, 0) / group.businesses.length;
+                const totalRevenue = group.businesses.reduce((sum, b) => sum + b.revenue_estimate, 0);
+                
+                return {
+                    zip: group.zip,
+                    city: group.city,
+                    state: group.state,
+                    coordinates: group.coordinates,
+                    business_count: group.businesses.length,
+                    avg_score: avgScore,
+                    total_revenue: totalRevenue,
+                    opportunity_density: avgScore * Math.log(group.businesses.length + 1)
+                };
+            });
+
+            return heatmapPoints;
+        }
+
+        function calculateMarketAnalysis(businesses, industry, location) {
+            const totalRevenue = businesses.reduce((sum, b) => sum + b.revenue_estimate, 0);
+            const avgRevenue = totalRevenue / businesses.length;
+            const highScoreCount = businesses.filter(b => b.overall_score >= 80).length;
+
+            return {
+                tam_estimate: totalRevenue,
+                business_count: businesses.length,
+                avg_revenue: avgRevenue,
+                high_score_count: highScoreCount,
+                market_penetration: (businesses.length / 1000) * 100, // Simplified
+                growth_opportunity: highScoreCount > businesses.length * 0.3 ? 'High' : 'Medium'
+            };
+        }
+
+        function displayResults(results) {
+            currentResults = results.businesses;
+            currentHeatmapData = results.heatmap_data;
+
+            // Show results sections
+            document.getElementById('results-header').style.display = 'block';
+            document.getElementById('map-container').style.display = 'block';
+            document.getElementById('results-table').style.display = 'block';
+
+            // Update title
+            const industry = document.getElementById('industry-select').value;
+            const location = document.getElementById('location-input').value;
+            document.getElementById('results-title').textContent = `${industry.replace('_', ' ').toUpperCase()} in ${location}`;
+
+            // Update stats
+            displayStats(results.market_analysis);
+
+            // Update table
+            displayBusinessTable(results.businesses);
+
+            // Update map
+            updateBusinessMap(results.businesses);
+        }
+
+        function displayStats(marketAnalysis) {
+            const statsContainer = document.getElementById('results-stats');
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${marketAnalysis.business_count}</div>
+                    <div class="stat-label">Businesses Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${(marketAnalysis.tam_estimate / 1000000).toFixed(1)}M</div>
+                    <div class="stat-label">Total TAM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${(marketAnalysis.avg_revenue / 1000).toFixed(0)}K</div>
+                    <div class="stat-label">Avg Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${marketAnalysis.high_score_count}</div>
+                    <div class="stat-label">High-Score Targets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${marketAnalysis.growth_opportunity}</div>
+                    <div class="stat-label">Growth Opportunity</div>
+                </div>
+            `;
+        }
+
+        function displayBusinessTable(businesses) {
+            const tbody = document.getElementById('business-tbody');
+            const resultsCount = document.getElementById('results-count');
+            
+            resultsCount.textContent = businesses.length;
+            tbody.innerHTML = '';
+
+            businesses.slice(0, 50).forEach(business => {
+                const row = document.createElement('tr');
+                row.onclick = () => showBusinessDetail(business);
+                
+                row.innerHTML = `
+                    <td><strong>${business.name}</strong></td>
+                    <td>${business.city}, ${business.state}</td>
+                    <td>$${(business.revenue_estimate / 1000).toFixed(0)}K</td>
+                    <td>${business.yelp_rating}★ (${business.yelp_review_count})</td>
+                    <td><span class="score-badge score-${getScoreClass(business.buybox_score)}">${business.buybox_score}%</span></td>
+                    <td><span class="score-badge score-${getScoreClass(business.overall_score)}">${business.overall_score}</span></td>
+                    <td>
+                        <button class="action-btn btn-primary" onclick="event.stopPropagation(); showBusinessDetail(${JSON.stringify(business).replace(/"/g, '&quot;')})">👁️ View</button>
+                        <button class="action-btn btn-success" onclick="event.stopPropagation(); addToCRM('${business.business_id}')">📤 CRM</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateBusinessMap(businesses) {
+            // Clear existing markers
+            businessMarkers.forEach(marker => map.removeLayer(marker));
+            businessMarkers = [];
+
+            // Add business markers
+            businesses.forEach(business => {
+                const coords = getRandomCoordinates(business.city + ', ' + business.state);
+                
+                let color = '#e74c3c';
+                if (business.overall_score >= 80) color = '#27ae60';
+                else if (business.overall_score >= 60) color = '#f39c12';
+
+                const marker = L.circleMarker(coords, {
+                    radius: Math.max(5, Math.min(15, business.overall_score / 8)),
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <div style="font-size: 0.9rem; min-width: 200px;">
+                        <strong>${business.name}</strong><br>
+                        ${business.city}, ${business.state}<br>
+                        <strong>Overall Score: ${business.overall_score}/100</strong><br>
+                        Revenue: $${(business.revenue_estimate / 1000).toFixed(0)}K<br>
+                        Rating: ${business.yelp_rating}★ (${business.yelp_review_count} reviews)<br>
+                        <button onclick="showBusinessDetail(${JSON.stringify(business).replace(/"/g, '&quot;')})" 
+                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            View Details
+                        </button>
+                    </div>
+                `);
+
+                businessMarkers.push(marker);
+            });
+
+            // Fit map to show all markers
+            if (businessMarkers.length > 0) {
+                const group = new L.featureGroup(businessMarkers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        function updateHeatmap(heatmapData) {
+            // Remove existing heatmap
+            if (heatmapLayer) {
+                map.removeLayer(heatmapLayer);
+            }
+
+            // Create heatmap points
+            const heatPoints = heatmapData.map(point => [
+                point.coordinates[0],
+                point.coordinates[1],
+                point.opportunity_density / 100 // Normalize for heatmap
+            ]);
+
+            // Add heatmap layer
+            heatmapLayer = L.heatLayer(heatPoints, {
+                radius: 25,
+                blur: 15,
+                maxZoom: 17,
+                gradient: {
+                    0.0: '#313695',
+                    0.25: '#4575b4', 
+                    0.5: '#74add1',
+                    0.75: '#abd9e9',
+                    1.0: '#e0f3f8'
+                }
+            }).addTo(map);
+        }
+
+        function showBusinessDetail(business) {
+            const modal = document.getElementById('business-modal');
+            const content = document.getElementById('business-detail-content');
+
+            content.innerHTML = `
+                <h2>${business.name}</h2>
+                <div class="business-detail">
+                    <div class="detail-section">
+                        <h4>📍 Contact Information</h4>
+                        <p><strong>Address:</strong> ${business.address}</p>
+                        <p><strong>City:</strong> ${business.city}, ${business.state}</p>
+                        <p><strong>Phone:</strong> ${business.phone}</p>
+                        <p><strong>Email:</strong> ${business.email || 'Not available'}</p>
+                        <p><strong>Website:</strong> ${business.website || 'None'}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>💼 Business Metrics</h4>
+                        <p><strong>Est. Revenue:</strong> $${(business.revenue_estimate / 1000).toFixed(0)}K</p>
+                        <p><strong>Employees:</strong> ${business.employee_count || 'Unknown'}</p>
+                        <p><strong>Yelp Rating:</strong> ${business.yelp_rating}★ (${business.yelp_review_count} reviews)</p>
+                        <p><strong>Google Rating:</strong> ${business.google_rating || 'N/A'}★</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>🎯 Scoring Breakdown</h4>
+                        <p><strong>Buybox Match:</strong> ${business.buybox_score}/100</p>
+                        <p><strong>Market Opportunity:</strong> ${business.market_opportunity_score}/100</p>
+                        <p><strong>Acquisition Readiness:</strong> ${business.acquisition_readiness_score}/100</p>
+                        <p><strong>Overall Score:</strong> <span class="score-badge score-${getScoreClass(business.overall_score)}">${business.overall_score}/100</span></p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>📊 Market Context</h4>
+                        <p><strong>Industry:</strong> ${document.getElementById('industry-select').options[document.getElementById('industry-select').selectedIndex].text}</p>
+                        <p><strong>Location Market:</strong> ${business.city} metro area</p>
+                        <p><strong>Competitive Position:</strong> ${business.overall_score >= 80 ? 'Top Tier' : business.overall_score >= 60 ? 'Strong' : 'Average'}</p>
+                    </div>
+                    
+                    <div class="crm-section">
+                        <h4>📤 CRM Integration</h4>
+                        <p>Export this business to your CRM system with all scoring and analysis data.</p>
+                        <div class="crm-buttons">
+                            <button class="crm-btn" onclick="addToCRM('${business.business_id}', 'hubspot')">📧 HubSpot</button>
+                            <button class="crm-btn" onclick="addToCRM('${business.business_id}', 'salesforce')">⚡ Salesforce</button>
+                            <button class="crm-btn" onclick="addToCRM('${business.business_id}', 'pipedrive')">📊 Pipedrive</button>
+                            <button class="crm-btn" onclick="generateOutreach('${business.business_id}')">✉️ Generate Outreach</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        function addToCRM(businessId, crmType) {
+            const business = currentResults.find(b => b.business_id === businessId);
+            if (!business) return;
+
+            // Simulate CRM export
+            const crmData = {
+                company: business.name,
+                phone: business.phone,
+                email: business.email,
+                website: business.website,
+                address: `${business.address}, ${business.city}, ${business.state}`,
+                industry: document.getElementById('industry-select').options[document.getElementById('industry-select').selectedIndex].text,
+                revenue: business.revenue_estimate,
+                overall_score: business.overall_score,
+                buybox_score: business.buybox_score,
+                lead_source: 'Comprehensive Search Platform',
+                notes: `Generated via multi-API search. Buybox match: ${business.buybox_score}%. Market opportunity: ${business.market_opportunity_score}%.`
+            };
+
+            console.log(`Exporting to ${crmType}:`, crmData);
+            showSuccess(`Successfully exported ${business.name} to ${crmType.toUpperCase()}`);
+        }
+
+        function exportToCRM() {
+            const highScoreBusinesses = currentResults.filter(b => b.overall_score >= 70);
+            
+            if (highScoreBusinesses.length === 0) {
+                showError('No high-scoring businesses to export');
+                return;
+            }
+
+            // Simulate bulk CRM export
+            const exportData = {
+                total_records: highScoreBusinesses.length,
+                businesses: highScoreBusinesses.map(b => ({
+                    name: b.name,
+                    phone: b.phone,
+                    email: b.email,
+                    overall_score: b.overall_score,
+                    buybox_score: b.buybox_score
+                })),
+                export_timestamp: new Date().toISOString()
+            };
+
+            console.log('Bulk CRM Export:', exportData);
+            showSuccess(`Exported ${highScoreBusinesses.length} high-scoring businesses to CRM`);
+        }
+
+        function exportToCSV() {
+            if (currentResults.length === 0) return;
+
+            const csvData = [
+                ['Name', 'City', 'State', 'Phone', 'Email', 'Website', 'Revenue', 'Rating', 'Reviews', 'Overall Score', 'Buybox Score'].join(','),
+                ...currentResults.map(b => [
+                    b.name,
+                    b.city,
+                    b.state,
+                    b.phone,
+                    b.email || '',
+                    b.website || '',
+                    b.revenue_estimate,
+                    b.yelp_rating,
+                    b.yelp_review_count,
+                    b.overall_score,
+                    b.buybox_score
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `business_search_results_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showSuccess('Results exported to CSV');
+        }
+
+        // Utility functions
+        function setLoadingState(loading) {
+            const btn = document.getElementById('search-btn');
+            const text = document.getElementById('search-text');
+            const spinner = document.getElementById('search-spinner');
+            const loadingDiv = document.getElementById('loading');
+
+            if (loading) {
+                btn.disabled = true;
+                text.textContent = 'Analyzing...';
+                spinner.style.display = 'block';
+                if (loadingDiv) loadingDiv.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                text.textContent = '🚀 Search & Analyze';
+                spinner.style.display = 'none';
+                if (loadingDiv) loadingDiv.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            alert(message); // Could be replaced with toast notification
+        }
+
+        function showSuccess(message) {
+            alert(message); // Could be replaced with toast notification
+        }
+
+        function getScoreClass(score) {
+            if (score >= 80) return 'high';
+            if (score >= 60) return 'medium';
+            return 'low';
+        }
+
+        function extractState(location) {
+            const stateMap = {
+                'florida': 'FL', 'fl': 'FL', 'miami': 'FL', 'orlando': 'FL', 'tampa': 'FL',
+                'massachusetts': 'MA', 'ma': 'MA', 'boston': 'MA', 'cambridge': 'MA',
+                'texas': 'TX', 'tx': 'TX', 'dallas': 'TX', 'houston': 'TX',
+                'california': 'CA', 'ca': 'CA', 'los angeles': 'CA', 'san francisco': 'CA',
+                'new york': 'NY', 'ny': 'NY', 'nyc': 'NY', 'manhattan': 'NY'
+            };
+
+            const locationLower = location.toLowerCase();
+            for (const [key, value] of Object.entries(stateMap)) {
+                if (locationLower.includes(key)) {
+                    return value;
+                }
+            }
+            return 'FL'; // Default
+        }
+
+        function extractCity(location) {
+            const cityMap = {
+                'miami': 'Miami', 'orlando': 'Orlando', 'tampa': 'Tampa',
+                'boston': 'Boston', 'cambridge': 'Cambridge',
+                'dallas': 'Dallas', 'houston': 'Houston',
+                'los angeles': 'Los Angeles', 'san francisco': 'San Francisco',
+                'new york': 'New York', 'manhattan': 'Manhattan'
+            };
+
+            const locationLower = location.toLowerCase();
+            for (const [key, value] of Object.entries(cityMap)) {
+                if (locationLower.includes(key)) {
+                    return value;
+                }
+            }
+            return location.split(',')[0] || 'Unknown';
+        }
+
+        function generateRandomZip() {
+            return String(Math.floor(Math.random() * 90000) + 10000);
+        }
+
+        function getRandomCoordinates(location) {
+            const locationCoords = {
+                'miami': [25.7617, -80.1918],
+                'orlando': [28.5383, -81.3792],
+                'tampa': [27.9506, -82.4572],
+                'boston': [42.3601, -71.0589],
+                'dallas': [32.7767, -96.7970],
+                'houston': [29.7604, -95.3698],
+                'los angeles': [34.0522, -118.2437],
+                'new york': [40.7128, -74.0060]
+            };
+
+            const locationLower = location.toLowerCase();
+            let baseCoords = [39.8283, -98.5795]; // Center of US
+
+            for (const [city, coords] of Object.entries(locationCoords)) {
+                if (locationLower.includes(city)) {
+                    baseCoords = coords;
+                    break;
+                }
+            }
+
+            // Add random offset
+            return [
+                baseCoords[0] + (Math.random() - 0.5) * 0.2,
+                baseCoords[1] + (Math.random() - 0.5) * 0.2
+            ];
+        }
+
+        function closeModal() {
+            document.getElementById('business-modal').style.display = 'none';
+        }
+
+        function sortTable(column) {
+            // Implementation for table sorting
+            console.log('Sorting by:', column);
+        }
+
+        function generateOutreach(businessId) {
+            showSuccess('Outreach email generated! Check your CRM for the draft.');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('business-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

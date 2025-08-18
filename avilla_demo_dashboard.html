@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avilla Peak Partners - Accounting Firm Sourcing Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: calc(100vh - 80px);
+        }
+        
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e1e5e9;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1rem;
+            padding: 1rem;
+        }
+        
+        .search-bar {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        
+        .ai-search-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #f8f9ff;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1rem;
+            height: 100%;
+        }
+        
+        .map-table-container {
+            display: grid;
+            grid-template-rows: 400px 1fr;
+            gap: 1rem;
+        }
+        
+        .map-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1rem;
+            overflow: auto;
+        }
+        
+        .insights-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-group h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .filter-control {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-control label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        
+        .filter-control input,
+        .filter-control select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .filter-control input[type="range"] {
+            margin: 0.5rem 0;
+        }
+        
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #888;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 0.75rem 0.5rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e1e5e9;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        .data-table td {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-high { background: #e8f5e8; color: #2e7d2e; }
+        .status-medium { background: #fff3cd; color: #856404; }
+        .status-low { background: #f8d7da; color: #721c24; }
+        
+        .score-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .score-progress {
+            flex: 1;
+            height: 6px;
+            background: #e1e5e9;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+        
+        .score-fill.high { background: #27ae60; }
+        .score-fill.medium { background: #f39c12; }
+        .score-fill.low { background: #e74c3c; }
+        
+        .ai-insights {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-insights h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .fragmentation-summary {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .map-legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Avilla Peak Partners</h1>
+            <div class="subtitle">Accounting Firm Sourcing Platform - Massachusetts & Florida</div>
+        </div>
+        <div>
+            <span id="total-firms">2,847</span> firms • 
+            <span id="high-score-firms">387</span> high-scoring targets
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="filter-group">
+                <h3>Search & Filters</h3>
+                
+                <div class="filter-control">
+                    <label>Global Search</label>
+                    <input type="text" class="search-input" placeholder="Firm name, owner, location...">
+                </div>
+                
+                <div class="filter-control">
+                    <label>AI-Powered Search</label>
+                    <input type="text" class="ai-search-input" placeholder="Ask AI: 'Find tax firms in wealthy Boston suburbs...'">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Geography</h3>
+                
+                <div class="filter-control">
+                    <label>States</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked> Massachusetts</label>
+                        <label><input type="checkbox" checked> Florida</label>
+                    </div>
+                </div>
+                
+                <div class="filter-control">
+                    <label>Zip Code Wealth Index</label>
+                    <input type="range" min="0" max="100" value="60" id="wealth-slider">
+                    <div class="range-labels">
+                        <span>Low</span>
+                        <span>Medium</span>
+                        <span>High</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Firm Characteristics</h3>
+                
+                <div class="filter-control">
+                    <label>Sub-Industry</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked> CPA Firms</label>
+                        <label><input type="checkbox" checked> Tax Preparation</label>
+                        <label><input type="checkbox" checked> Bookkeeping</label>
+                        <label><input type="checkbox"> Payroll Services</label>
+                        <label><input type="checkbox"> Forensic Accounting</label>
+                    </div>
+                </div>
+                
+                <div class="filter-control">
+                    <label>Revenue Range ($M)</label>
+                    <input type="range" min="0.5" max="10" value="5" step="0.1" id="revenue-slider">
+                    <div class="range-labels">
+                        <span>$0.5M</span>
+                        <span id="revenue-value">$5.0M</span>
+                        <span>$10M</span>
+                    </div>
+                </div>
+                
+                <div class="filter-control">
+                    <label>Website Status</label>
+                    <select>
+                        <option>Any</option>
+                        <option>Has Website</option>
+                        <option>No Website</option>
+                        <option>Outdated Website</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Deal Scoring</h3>
+                
+                <div class="filter-control">
+                    <label>Minimum Deal Score</label>
+                    <input type="range" min="0" max="100" value="70" id="score-slider">
+                    <div class="range-labels">
+                        <span>0</span>
+                        <span id="score-value">70</span>
+                        <span>100</span>
+                    </div>
+                </div>
+                
+                <div class="filter-control">
+                    <label>Succession Risk</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox"> Low Risk (<40%)</label>
+                        <label><input type="checkbox" checked> Medium Risk (40-60%)</label>
+                        <label><input type="checkbox" checked> High Risk (>60%)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="export-buttons">
+                <button class="btn btn-primary">Export CSV</button>
+                <button class="btn btn-secondary">Generate Report</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="search-bar">
+                <button class="btn btn-primary">🔍 Search</button>
+                <button class="btn btn-secondary">🤖 AI Insights</button>
+                <button class="btn btn-secondary">📊 Fragmentation Analysis</button>
+                <button class="btn btn-secondary">💾 Save Search</button>
+            </div>
+
+            <div class="main-content">
+                <div class="map-table-container">
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #27ae60;"></div>
+                                <span>High Deal Score (80+)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #f39c12;"></div>
+                                <span>Medium Deal Score (60-79)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #e74c3c;"></div>
+                                <span>Low Deal Score (<60)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <h3 style="margin-bottom: 1rem;">Target Firms</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Firm Name</th>
+                                    <th>Location</th>
+                                    <th>Sub-Industry</th>
+                                    <th>Revenue Est.</th>
+                                    <th>Website</th>
+                                    <th>Reviews</th>
+                                    <th>Succession Risk</th>
+                                    <th>Deal Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Cambridge Tax Associates</strong></td>
+                                    <td>Cambridge, MA</td>
+                                    <td><span class="status-badge status-high">Tax Prep</span></td>
+                                    <td>$1.8M</td>
+                                    <td>❌</td>
+                                    <td>12 (4.2★)</td>
+                                    <td>
+                                        <div class="score-bar">
+                                            <div class="score-progress">
+                                                <div class="score-fill high" style="width: 72%;"></div>
+                                            </div>
+                                            <span>72%</span>
+                                        </div>
+                                    </td>
+                                    <td><strong>84</strong></td>
+                                    <td>
+                                        <button class="btn btn-primary">👁️</button>
+                                        <button class="btn btn-secondary">💾</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Coral Gables CPA Group</strong></td>
+                                    <td>Coral Gables, FL</td>
+                                    <td><span class="status-badge status-medium">CPA</span></td>
+                                    <td>$2.4M</td>
+                                    <td>✅</td>
+                                    <td>28 (4.1★)</td>
+                                    <td>
+                                        <div class="score-bar">
+                                            <div class="score-progress">
+                                                <div class="score-fill medium" style="width: 58%;"></div>
+                                            </div>
+                                            <span>58%</span>
+                                        </div>
+                                    </td>
+                                    <td><strong>81</strong></td>
+                                    <td>
+                                        <button class="btn btn-primary">👁️</button>
+                                        <button class="btn btn-secondary">💾</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Back Bay Bookkeeping</strong></td>
+                                    <td>Boston, MA</td>
+                                    <td><span class="status-badge status-high">Bookkeeping</span></td>
+                                    <td>$1.2M</td>
+                                    <td>⚠️</td>
+                                    <td>8 (4.0★)</td>
+                                    <td>
+                                        <div class="score-bar">
+                                            <div class="score-progress">
+                                                <div class="score-fill high" style="width: 81%;"></div>
+                                            </div>
+                                            <span>81%</span>
+                                        </div>
+                                    </td>
+                                    <td><strong>79</strong></td>
+                                    <td>
+                                        <button class="btn btn-primary">👁️</button>
+                                        <button class="btn btn-secondary">💾</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Naples Estate Planning</strong></td>
+                                    <td>Naples, FL</td>
+                                    <td><span class="status-badge status-medium">Estate</span></td>
+                                    <td>$3.1M</td>
+                                    <td>✅</td>
+                                    <td>34 (4.5★)</td>
+                                    <td>
+                                        <div class="score-bar">
+                                            <div class="score-progress">
+                                                <div class="score-fill high" style="width: 89%;"></div>
+                                            </div>
+                                            <span>89%</span>
+                                        </div>
+                                    </td>
+                                    <td><strong>88</strong></td>
+                                    <td>
+                                        <button class="btn btn-primary">👁️</button>
+                                        <button class="btn btn-secondary">💾</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="insights-panel">
+                    <div class="ai-insights">
+                        <h3>🤖 AI Market Insights</h3>
+                        <p><strong>Boston Metro Analysis:</strong> Highly fragmented market with 1,847+ small accounting firms. HHI index of 0.09 indicates strong roll-up opportunity. Target wealthy suburbs like Cambridge and Lexington for premium succession plays.</p>
+                        
+                        <p><strong>Florida Opportunities:</strong> Miami and Orlando show excellent formation rates (13.4-15.7 per 1K adults) indicating growing demand. Focus on Coral Gables and Winter Springs for high-net-worth client bases.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">387</div>
+                        <div class="metric-label">High-Scoring Targets</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">0.11</div>
+                        <div class="metric-label">Avg HHI Index (Fragmented)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">$2.1M</div>
+                        <div class="metric-label">Avg Target Revenue</div>
+                    </div>
+
+                    <div class="fragmentation-summary">
+                        <h4>Market Fragmentation Summary</h4>
+                        <p><strong>Boston:</strong> Highly fragmented (Score: 84/100)<br>
+                        <em>Strategy: Aggressive roll-up, target 8-12 firms</em></p>
+                        
+                        <p><strong>Miami:</strong> Large fragmented market (Score: 78/100)<br>
+                        <em>Strategy: Mix of high-end and volume plays</em></p>
+                        
+                        <p><strong>Naples:</strong> Concentrated wealthy market (Score: 87/100)<br>
+                        <em>Strategy: Premium estate planning specialists</em></p>
+                    </div>
+
+                    <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Quick Actions</h4>
+                    <div class="export-buttons">
+                        <button class="btn btn-primary">📧 Generate Outreach</button>
+                        <button class="btn btn-secondary">📋 Create Deal List</button>
+                        <button class="btn btn-secondary">📈 Valuation Model</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Leaflet map
+        const map = L.map('map').setView([42.3601, -71.0589], 7);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Sample firm markers with deal scores
+        const firmMarkers = [
+            {lat: 42.3736, lng: -71.1097, name: "Cambridge Tax Associates", score: 84, city: "Cambridge, MA"},
+            {lat: 25.7617, lng: -80.1918, name: "Coral Gables CPA Group", score: 81, city: "Coral Gables, FL"},
+            {lat: 42.3505, lng: -71.0709, name: "Back Bay Bookkeeping", score: 79, city: "Boston, MA"},
+            {lat: 26.1420, lng: -81.7948, name: "Naples Estate Planning", score: 88, city: "Naples, FL"},
+            {lat: 42.4084, lng: -71.3826, name: "Lexington Financial", score: 86, city: "Lexington, MA"},
+            {lat: 25.7907, lng: -80.1300, name: "Miami Beach Tax Services", score: 77, city: "Miami Beach, FL"},
+            {lat: 28.5383, lng: -81.3792, name: "Orlando Business Accounting", score: 82, city: "Orlando, FL"},
+            {lat: 42.2806, lng: -71.4162, name: "Framingham CPA", score: 75, city: "Framingham, MA"}
+        ];
+
+        // Add markers to map
+        firmMarkers.forEach(firm => {
+            let color = '#e74c3c'; // Low score - red
+            if (firm.score >= 80) color = '#27ae60'; // High score - green
+            else if (firm.score >= 60) color = '#f39c12'; // Medium score - orange
+
+            const marker = L.circleMarker([firm.lat, firm.lng], {
+                radius: 8,
+                fillColor: color,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map);
+
+            marker.bindPopup(`
+                <div style="font-size: 0.9rem;">
+                    <strong>${firm.name}</strong><br>
+                    ${firm.city}<br>
+                    <strong>Deal Score: ${firm.score}/100</strong>
+                </div>
+            `);
+        });
+
+        // Interactive sliders
+        document.getElementById('revenue-slider').addEventListener('input', function(e) {
+            document.getElementById('revenue-value').textContent = `$${parseFloat(e.target.value).toFixed(1)}M`;
+        });
+
+        document.getElementById('score-slider').addEventListener('input', function(e) {
+            document.getElementById('score-value').textContent = e.target.value;
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const totalFirms = document.getElementById('total-firms');
+            const highScoreFirms = document.getElementById('high-score-firms');
+            
+            // Slight random variations to simulate live data
+            const baseTotal = 2847;
+            const baseHigh = 387;
+            
+            totalFirms.textContent = baseTotal + Math.floor(Math.random() * 10 - 5);
+            highScoreFirms.textContent = baseHigh + Math.floor(Math.random() * 6 - 3);
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>

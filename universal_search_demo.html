@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Business Search & TAM Analyzer - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .example-tag {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .example-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .results-container {
+            display: none;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .tam-overview {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tam-overview h3 {
+            color: white;
+        }
+        
+        .tam-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .tam-metric {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .tam-metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tam-metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .insight-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .insight-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .insight-icon {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        
+        .methodology {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .api-demo {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .api-demo h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .api-endpoint {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+        
+        .demo-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .demo-card h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Universal Business Search & TAM Analyzer</h1>
+        <p>AI-powered market analysis for any service business in any location</p>
+    </div>
+
+    <div class="main-container">
+        <div class="search-section">
+            <div class="search-form">
+                <input type="text" id="business-query" class="search-input" 
+                       placeholder="e.g., pool cleaning services in Miami, HVAC contractors in Texas, dental practices">
+                <input type="text" id="location-input" class="search-input" 
+                       placeholder="Location (optional)">
+                <button id="search-btn" class="search-btn" onclick="performDemo()">
+                    🚀 Analyze Market
+                </button>
+            </div>
+            
+            <div class="examples">
+                <div class="example-tag" onclick="showDemo('pool-cleaning-miami')">Pool Cleaning - Miami</div>
+                <div class="example-tag" onclick="showDemo('hvac-texas')">HVAC - Texas</div>
+                <div class="example-tag" onclick="showDemo('dental-practices')">Dental Practices</div>
+                <div class="example-tag" onclick="showDemo('landscaping-ca')">Landscaping - CA</div>
+                <div class="example-tag" onclick="showDemo('plumbing-ny')">Plumbing - NY</div>
+                <div class="example-tag" onclick="showDemo('restaurants')">Small Restaurants</div>
+            </div>
+        </div>
+
+        <div class="api-demo">
+            <h3>🔗 API Endpoints Available</h3>
+            <p><strong>Universal Business Search:</strong></p>
+            <div class="api-endpoint">POST /api/universal-search<br>{"query": "pool cleaning services in Miami", "location": "Miami, FL"}</div>
+            
+            <p><strong>TAM Calculator:</strong></p>
+            <div class="api-endpoint">POST /api/tam-calculator<br>{"business_type": "pool cleaning", "location": "Miami", "parameters": {}}</div>
+            
+            <p><strong>Business Intelligence:</strong></p>
+            <div class="api-endpoint">POST /api/business-intelligence<br>{"industry": "pool services", "location": "Florida", "investment_criteria": {}}</div>
+        </div>
+
+        <div id="results-container" class="results-container">
+            <div class="results-grid">
+                <div class="result-card tam-overview">
+                    <h3>💰 Total Addressable Market</h3>
+                    <div class="tam-metrics" id="tam-metrics">
+                        <!-- Will be populated by demo -->
+                    </div>
+                    <div class="methodology">
+                        <strong>Methodology:</strong> AI-powered analysis combining industry data, demographic factors, and market research<br>
+                        <strong>Data Sources:</strong> OpenAI GPT-4, Census Bureau, Industry Reports, Market Intelligence
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h3>📊 Market Analysis</h3>
+                    <ul class="insight-list" id="market-insights">
+                        <!-- Will be populated by demo -->
+                    </ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>🎯 Investment Insights</h3>
+                    <ul class="insight-list" id="investment-insights">
+                        <!-- Will be populated by demo -->
+                    </ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>🏢 Competitive Landscape</h3>
+                    <ul class="insight-list" id="competitive-insights">
+                        <!-- Will be populated by demo -->
+                    </ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>📍 Location Factors</h3>
+                    <ul class="insight-list" id="location-insights">
+                        <!-- Will be populated by demo -->
+                    </ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>⚙️ Business Economics</h3>
+                    <ul class="insight-list" id="business-economics">
+                        <!-- Will be populated by demo -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-examples">
+            <div class="demo-card" onclick="showDemo('pool-cleaning-miami')">
+                <h4>🏊 Pool Cleaning - Miami</h4>
+                <p>Residential and commercial pool maintenance services in South Florida</p>
+                <div class="demo-metrics">
+                    <span>TAM: $847M</span>
+                    <span>Businesses: 2,340</span>
+                    <span>Growth: 8.2%</span>
+                </div>
+            </div>
+
+            <div class="demo-card" onclick="showDemo('hvac-texas')">
+                <h4>🌡️ HVAC Services - Texas</h4>
+                <p>Heating, ventilation, and air conditioning contractors statewide</p>
+                <div class="demo-metrics">
+                    <span>TAM: $3.2B</span>
+                    <span>Businesses: 8,900</span>
+                    <span>Growth: 6.1%</span>
+                </div>
+            </div>
+
+            <div class="demo-card" onclick="showDemo('dental-practices')">
+                <h4>🦷 Dental Practices</h4>
+                <p>Independent dental practices under $5M revenue nationwide</p>
+                <div class="demo-metrics">
+                    <span>TAM: $12.4B</span>
+                    <span>Businesses: 15,600</span>
+                    <span>Growth: 3.8%</span>
+                </div>
+            </div>
+
+            <div class="demo-card" onclick="showDemo('landscaping-ca')">
+                <h4>🌿 Landscaping - California</h4>
+                <p>Commercial and residential landscaping services</p>
+                <div class="demo-metrics">
+                    <span>TAM: $2.1B</span>
+                    <span>Businesses: 12,300</span>
+                    <span>Growth: 7.4%</span>
+                </div>
+            </div>
+
+            <div class="demo-card" onclick="showDemo('plumbing-ny')">
+                <h4>🔧 Plumbing - New York</h4>
+                <p>Residential and commercial plumbing contractors</p>
+                <div class="demo-metrics">
+                    <span>TAM: $1.8B</span>
+                    <span>Businesses: 4,200</span>
+                    <span>Growth: 4.9%</span>
+                </div>
+            </div>
+
+            <div class="demo-card" onclick="showDemo('restaurants')">
+                <h4>🍕 Small Restaurants</h4>
+                <p>Independent restaurants under $2M annual revenue</p>
+                <div class="demo-metrics">
+                    <span>TAM: $89B</span>
+                    <span>Businesses: 145,000</span>
+                    <span>Growth: 2.3%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const demoData = {
+            'pool-cleaning-miami': {
+                tam: {
+                    market_size: '$847M',
+                    businesses: '2,340',
+                    avg_revenue: '$362K',
+                    growth_rate: '8.2%'
+                },
+                market: [
+                    'High fragmentation - thousands of small operators',
+                    'Seasonal demand with peak in summer months',
+                    'Growing market due to new construction',
+                    'Average business serves 150-300 pools'
+                ],
+                investment: [
+                    'Attractive roll-up opportunity - highly fragmented',
+                    'Typical multiples: 2.5-4.0x EBITDA',
+                    'Strong recurring revenue model',
+                    'Low technology adoption creates efficiency opportunities'
+                ],
+                competitive: [
+                    'Market dominated by small, local operators',
+                    'Low barriers to entry but high customer loyalty',
+                    'Consolidation opportunity through technology',
+                    'Premium pricing possible with superior service'
+                ],
+                location: [
+                    'Miami-Dade has 180,000+ residential pools',
+                    'Year-round service demand (no seasonal shutdown)',
+                    'High-income demographics support premium pricing',
+                    'Hurricane season creates maintenance surge demand'
+                ],
+                economics: [
+                    'Gross margins: 60-75% for established operators',
+                    'Startup costs: $25K-$75K for equipment and truck',
+                    'Breakeven typically within 12-18 months',
+                    'Highly scalable with route optimization'
+                ]
+            },
+            'hvac-texas': {
+                tam: {
+                    market_size: '$3.2B',
+                    businesses: '8,900',
+                    avg_revenue: '$359K',
+                    growth_rate: '6.1%'
+                },
+                market: [
+                    'Large, growing market driven by population growth',
+                    'Extreme weather drives high demand',
+                    'Mix of residential and commercial opportunities',
+                    'Energy efficiency trends creating new revenue streams'
+                ],
+                investment: [
+                    'Strong consolidation activity by national players',
+                    'Typical multiples: 3.0-5.5x EBITDA',
+                    'Recurring maintenance contracts provide stability',
+                    'Technology adoption improving operational efficiency'
+                ],
+                competitive: [
+                    'Moderate fragmentation with regional leaders',
+                    'Licensing requirements create entry barriers',
+                    'Brand recognition important for premium pricing',
+                    'Service quality differentiation critical'
+                ],
+                location: [
+                    'Texas climate drives year-round HVAC demand',
+                    'Rapid population and construction growth',
+                    'Commercial market driven by business expansion',
+                    'Energy efficiency incentives support upgrades'
+                ],
+                economics: [
+                    'Gross margins: 45-65% depending on service mix',
+                    'Higher startup costs: $100K-$300K for equipment',
+                    'Breakeven typically 18-24 months',
+                    'Scalable through technician training programs'
+                ]
+            },
+            'dental-practices': {
+                tam: {
+                    market_size: '$12.4B',
+                    businesses: '15,600',
+                    avg_revenue: '$795K',
+                    growth_rate: '3.8%'
+                },
+                market: [
+                    'Stable, recession-resistant healthcare sector',
+                    'Aging population driving increased demand',
+                    'Insurance coverage supports consistent revenue',
+                    'Preventive care focus creates recurring visits'
+                ],
+                investment: [
+                    'Active DSO (Dental Service Organization) consolidation',
+                    'Typical multiples: 4.0-7.0x EBITDA',
+                    'Predictable cash flows from insurance reimbursements',
+                    'Operational leverage through centralized management'
+                ],
+                competitive: [
+                    'Highly fragmented with independent practices',
+                    'High barriers to entry (licensing, capital)',
+                    'Patient loyalty creates defensive moats',
+                    'Technology adoption improving efficiency'
+                ],
+                location: [
+                    'Demographic analysis critical for site selection',
+                    'Insurance penetration affects revenue potential',
+                    'Competition density varies significantly by market',
+                    'Regulatory environment stable and predictable'
+                ],
+                economics: [
+                    'EBITDA margins: 25-40% for well-run practices',
+                    'High startup costs: $500K-$1M+ for equipment',
+                    'Breakeven typically 2-3 years for new practices',
+                    'Limited scalability without additional locations'
+                ]
+            },
+            'landscaping-ca': {
+                tam: {
+                    market_size: '$2.1B',
+                    businesses: '12,300',
+                    avg_revenue: '$171K',
+                    growth_rate: '7.4%'
+                },
+                market: [
+                    'Strong growth driven by drought-resistant landscaping',
+                    'Commercial market provides larger contract opportunities',
+                    'Seasonal variations with peak in spring/summer',
+                    'Sustainability trends creating new service categories'
+                ],
+                investment: [
+                    'Fragmented market with roll-up opportunities',
+                    'Typical multiples: 2.0-3.5x EBITDA',
+                    'Labor-intensive business with margin pressure',
+                    'Technology adoption improving route efficiency'
+                ],
+                competitive: [
+                    'Extremely fragmented - mostly small operators',
+                    'Low barriers to entry but customer acquisition challenging',
+                    'Quality and reliability key differentiators',
+                    'Seasonal labor management critical'
+                ],
+                location: [
+                    'Water restrictions driving xeriscaping demand',
+                    'High property values support premium pricing',
+                    'Environmental regulations affecting operations',
+                    'Year-round growing season in most regions'
+                ],
+                economics: [
+                    'Gross margins: 40-60% depending on services',
+                    'Low startup costs: $15K-$50K for basic equipment',
+                    'Breakeven within 6-12 months typically',
+                    'Scalable through crew expansion and route density'
+                ]
+            },
+            'plumbing-ny': {
+                tam: {
+                    market_size: '$1.8B',
+                    businesses: '4,200',
+                    avg_revenue: '$429K',
+                    growth_rate: '4.9%'
+                },
+                market: [
+                    'Essential service with consistent demand',
+                    'Aging infrastructure driving replacement needs',
+                    'Emergency services command premium pricing',
+                    'Commercial market provides larger projects'
+                ],
+                investment: [
+                    'Consolidation opportunity among smaller operators',
+                    'Typical multiples: 2.5-4.5x EBITDA',
+                    'Defensive business model with recurring needs',
+                    'Technology improving dispatch and routing'
+                ],
+                competitive: [
+                    'Moderate fragmentation with established players',
+                    'Licensing requirements create entry barriers',
+                    'Brand trust critical for residential market',
+                    'Service response time key competitive factor'
+                ],
+                location: [
+                    'Older building stock drives higher service demand',
+                    'Dense population supports route efficiency',
+                    'Union labor requirements in commercial sector',
+                    'Harsh winters create seasonal surge demand'
+                ],
+                economics: [
+                    'Gross margins: 50-70% for service calls',
+                    'Moderate startup costs: $75K-$150K',
+                    'Breakeven typically 12-18 months',
+                    'Scalable through technician training and territories'
+                ]
+            },
+            'restaurants': {
+                tam: {
+                    market_size: '$89B',
+                    businesses: '145,000',
+                    avg_revenue: '$614K',
+                    growth_rate: '2.3%'
+                },
+                market: [
+                    'Mature market with steady demand',
+                    'Local preferences create differentiation opportunities',
+                    'Delivery and takeout trends reshaping operations',
+                    'Labor costs and food inflation pressure margins'
+                ],
+                investment: [
+                    'Challenging investment environment post-COVID',
+                    'Typical multiples: 1.5-3.0x EBITDA (when profitable)',
+                    'High failure rate requires careful due diligence',
+                    'Technology adoption critical for efficiency'
+                ],
+                competitive: [
+                    'Extremely competitive with low barriers to entry',
+                    'Brand differentiation and location critical',
+                    'Chain competition pressures independent operators',
+                    'Customer loyalty varies significantly by concept'
+                ],
+                location: [
+                    'Location is primary success factor',
+                    'Foot traffic patterns changed post-pandemic',
+                    'Delivery radius affects potential customer base',
+                    'Local regulations affect operating costs'
+                ],
+                economics: [
+                    'EBITDA margins: 8-15% for successful operators',
+                    'High startup costs: $200K-$500K+ depending on concept',
+                    'Breakeven typically 18-36 months',
+                    'Limited scalability without additional locations'
+                ]
+            }
+        };
+
+        function performDemo() {
+            const query = document.getElementById('business-query').value.trim();
+            if (!query) return;
+
+            // Simple keyword matching for demo
+            let demoKey = 'pool-cleaning-miami';
+            if (query.toLowerCase().includes('hvac')) demoKey = 'hvac-texas';
+            else if (query.toLowerCase().includes('dental')) demoKey = 'dental-practices';
+            else if (query.toLowerCase().includes('landscaping')) demoKey = 'landscaping-ca';
+            else if (query.toLowerCase().includes('plumbing')) demoKey = 'plumbing-ny';
+            else if (query.toLowerCase().includes('restaurant')) demoKey = 'restaurants';
+
+            showDemo(demoKey);
+        }
+
+        function showDemo(demoKey) {
+            const data = demoData[demoKey];
+            if (!data) return;
+
+            // Show results container
+            document.getElementById('results-container').style.display = 'block';
+
+            // Populate TAM metrics
+            document.getElementById('tam-metrics').innerHTML = `
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${data.tam.market_size}</div>
+                    <div class="tam-metric-label">Market Size</div>
+                </div>
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${data.tam.businesses}</div>
+                    <div class="tam-metric-label">Total Businesses</div>
+                </div>
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${data.tam.avg_revenue}</div>
+                    <div class="tam-metric-label">Avg Revenue</div>
+                </div>
+                <div class="tam-metric">
+                    <div class="tam-metric-value">${data.tam.growth_rate}</div>
+                    <div class="tam-metric-label">Growth Rate</div>
+                </div>
+            `;
+
+            // Populate insights
+            populateInsights('market-insights', data.market, '📊');
+            populateInsights('investment-insights', data.investment, '🎯');
+            populateInsights('competitive-insights', data.competitive, '🏢');
+            populateInsights('location-insights', data.location, '📍');
+            populateInsights('business-economics', data.economics, '⚙️');
+
+            // Scroll to results
+            document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function populateInsights(containerId, insights, icon) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = insights.map(insight => `
+                <li>
+                    <div class="insight-icon">${icon}</div>
+                    <span>${insight}</span>
+                </li>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

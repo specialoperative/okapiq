@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Buybox - PE Sourcing Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            height: calc(100vh - 80px);
+        }
+        
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e1e5e9;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1rem;
+            padding: 1rem;
+        }
+        
+        .buybox-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .buybox-section h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .buybox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .buybox-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .buybox-input label {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .buybox-input input,
+        .buybox-input select {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.9);
+        }
+        
+        .buybox-textarea {
+            margin-top: 1rem;
+        }
+        
+        .buybox-textarea label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .buybox-textarea textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.9);
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .analyze-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .analyze-btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        
+        .analyze-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .tam-analysis {
+            background: #e8f5e8;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tam-analysis h4 {
+            color: #27ae60;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tam-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .tam-metric {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tam-metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #27ae60;
+        }
+        
+        .tam-metric-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .fragmentation-analysis {
+            background: #fff3cd;
+            border: 1px solid #f39c12;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .fragmentation-analysis h4 {
+            color: #f39c12;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .frag-chart-container {
+            height: 200px;
+            margin: 1rem 0;
+        }
+        
+        .api-status {
+            background: #d1ecf1;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .api-status h4 {
+            color: #3498db;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .api-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .api-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .api-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .api-active { background: #27ae60; }
+        .api-inactive { background: #e74c3c; }
+        .api-loading { background: #f39c12; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            height: 100%;
+        }
+        
+        .map-results-container {
+            display: grid;
+            grid-template-rows: 400px 1fr;
+            gap: 1rem;
+        }
+        
+        .map-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+        
+        .results-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1rem;
+            overflow: auto;
+        }
+        
+        .insights-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            height: fit-content;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 0.75rem 0.5rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e1e5e9;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+        
+        .data-table td {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-high { background: #e8f5e8; color: #2e7d2e; }
+        .status-medium { background: #fff3cd; color: #856404; }
+        .status-low { background: #f8d7da; color: #721c24; }
+        
+        .score-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .score-progress {
+            flex: 1;
+            height: 6px;
+            background: #e1e5e9;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+        
+        .score-fill.high { background: #27ae60; }
+        .score-fill.medium { background: #f39c12; }
+        .score-fill.low { background: #e74c3c; }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .map-legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+        
+        .buybox-examples {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+        }
+        
+        .buybox-examples h5 {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .example-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin: 0.25rem;
+            transition: all 0.2s;
+        }
+        
+        .example-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .real-time-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .real-time-dot {
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Dynamic Buybox Analyzer</h1>
+            <div class="subtitle">Real-time TAM, Fragmentation & API-Powered Deal Sourcing</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span>📊</span>
+                <span id="total-firms">676</span> total firms
+            </div>
+            <div class="stat-item">
+                <span>🎯</span>
+                <span id="matching-firms">0</span> matching
+            </div>
+            <div class="stat-item">
+                <span>💰</span>
+                <span id="tam-value">$0</span> TAM
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="buybox-section">
+                <h3>🎯 Define Your Buybox</h3>
+                
+                <div class="buybox-grid">
+                    <div class="buybox-input">
+                        <label>Industry Focus</label>
+                        <select id="industry-focus">
+                            <option value="all">All Industries</option>
+                            <option value="accounting">Accounting Services</option>
+                            <option value="legal">Legal Services</option>
+                            <option value="consulting">Consulting</option>
+                            <option value="healthcare">Healthcare Services</option>
+                            <option value="technology">Technology Services</option>
+                        </select>
+                    </div>
+                    
+                    <div class="buybox-input">
+                        <label>Geographic Focus</label>
+                        <select id="geo-focus">
+                            <option value="all">All Regions</option>
+                            <option value="northeast">Northeast US</option>
+                            <option value="southeast">Southeast US</option>
+                            <option value="ma">Massachusetts</option>
+                            <option value="fl">Florida</option>
+                            <option value="custom">Custom Regions</option>
+                        </select>
+                    </div>
+                    
+                    <div class="buybox-input">
+                        <label>Min Revenue ($M)</label>
+                        <input type="number" id="min-revenue" value="1" min="0" max="100" step="0.1">
+                    </div>
+                    
+                    <div class="buybox-input">
+                        <label>Max Revenue ($M)</label>
+                        <input type="number" id="max-revenue" value="10" min="0" max="100" step="0.1">
+                    </div>
+                    
+                    <div class="buybox-input">
+                        <label>Min EBITDA ($K)</label>
+                        <input type="number" id="min-ebitda" value="300" min="0" max="10000" step="50">
+                    </div>
+                    
+                    <div class="buybox-input">
+                        <label>Max Multiple</label>
+                        <input type="number" id="max-multiple" value="5" min="1" max="10" step="0.1">
+                    </div>
+                    
+                    <div class="buybox-input">
+                        <label>Succession Priority</label>
+                        <select id="succession-priority">
+                            <option value="any">Any</option>
+                            <option value="high">High Succession Risk</option>
+                            <option value="medium">Medium Succession Risk</option>
+                            <option value="growth">Growth-Focused</option>
+                        </select>
+                    </div>
+                    
+                    <div class="buybox-input">
+                        <label>Digital Maturity</label>
+                        <select id="digital-maturity">
+                            <option value="any">Any</option>
+                            <option value="modern">Modern (Website + Reviews)</option>
+                            <option value="basic">Basic (Website Only)</option>
+                            <option value="limited">Limited (No Website)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="buybox-textarea">
+                    <label>Additional Criteria (Natural Language)</label>
+                    <textarea id="additional-criteria" placeholder="e.g., 'Focus on firms in wealthy zip codes with aging owners', 'Prefer family-owned businesses', 'Target firms with recurring revenue models'"></textarea>
+                </div>
+                
+                <div class="buybox-examples">
+                    <h5>Quick Examples:</h5>
+                    <button class="example-btn" onclick="loadExample('accounting-rollup')">Accounting Roll-up</button>
+                    <button class="example-btn" onclick="loadExample('succession-focus')">Succession Focus</button>
+                    <button class="example-btn" onclick="loadExample('growth-platform')">Growth Platform</button>
+                    <button class="example-btn" onclick="loadExample('value-play')">Value Play</button>
+                </div>
+                
+                <button class="analyze-btn" id="analyze-btn" onclick="analyzeBuybox()">
+                    <span class="loading-spinner" id="analyze-spinner" style="display: none;"></span>
+                    🔍 Analyze Market Opportunity
+                </button>
+            </div>
+            
+            <div class="api-status">
+                <h4>🔗 API Status</h4>
+                <div class="api-grid">
+                    <div class="api-item">
+                        <div class="api-status-dot api-active" id="yelp-status"></div>
+                        <span>Yelp Reviews</span>
+                    </div>
+                    <div class="api-item">
+                        <div class="api-status-dot api-active" id="google-status"></div>
+                        <span>Google Maps</span>
+                    </div>
+                    <div class="api-item">
+                        <div class="api-status-dot api-active" id="census-status"></div>
+                        <span>US Census</span>
+                    </div>
+                    <div class="api-item">
+                        <div class="api-status-dot api-active" id="dataaxle-status"></div>
+                        <span>Data Axle</span>
+                    </div>
+                    <div class="api-item">
+                        <div class="api-status-dot api-active" id="openai-status"></div>
+                        <span>OpenAI</span>
+                    </div>
+                    <div class="api-item">
+                        <div class="api-status-dot api-active" id="mastercard-status"></div>
+                        <span>Mastercard</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tam-analysis" id="tam-analysis" style="display: none;">
+                <h4>💰 TAM Analysis</h4>
+                <div class="tam-metrics">
+                    <div class="tam-metric">
+                        <div class="tam-metric-value" id="tam-total">$0</div>
+                        <div class="tam-metric-label">Total Addressable Market</div>
+                    </div>
+                    <div class="tam-metric">
+                        <div class="tam-metric-value" id="tam-firms">0</div>
+                        <div class="tam-metric-label">Target Firms</div>
+                    </div>
+                    <div class="tam-metric">
+                        <div class="tam-metric-value" id="tam-avg-deal">$0</div>
+                        <div class="tam-metric-label">Avg Deal Size</div>
+                    </div>
+                    <div class="tam-metric">
+                        <div class="tam-metric-value" id="tam-multiple">0x</div>
+                        <div class="tam-metric-label">Avg Multiple</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fragmentation-analysis" id="fragmentation-analysis" style="display: none;">
+                <h4>📊 Market Fragmentation</h4>
+                <div class="frag-chart-container">
+                    <canvas id="fragmentation-chart"></canvas>
+                </div>
+                <div id="fragmentation-insights"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="real-time-indicator">
+                <div class="real-time-dot"></div>
+                <span>Real-time analysis with live API data</span>
+            </div>
+
+            <div class="main-content">
+                <div class="map-results-container">
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #27ae60;"></div>
+                                <span>High Match (90+%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #f39c12;"></div>
+                                <span>Medium Match (70-89%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #e74c3c;"></div>
+                                <span>Low Match (<70%)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="results-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Matching Opportunities (<span id="results-count">0</span> results)</h3>
+                            <div class="export-buttons">
+                                <button class="btn btn-primary" onclick="exportResults()">📊 Export Results</button>
+                                <button class="btn btn-success" onclick="generateReport()">📄 Generate Report</button>
+                            </div>
+                        </div>
+                        
+                        <div id="loading" class="loading" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            Analyzing market with all APIs...
+                        </div>
+                        
+                        <div id="no-results" style="display: none; text-align: center; padding: 2rem; color: #666;">
+                            <h4>No results found</h4>
+                            <p>Try adjusting your buybox criteria to find opportunities</p>
+                        </div>
+                        
+                        <table class="data-table" id="results-table" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortResults('name')">Firm Name</th>
+                                    <th onclick="sortResults('location')">Location</th>
+                                    <th onclick="sortResults('revenue_estimate')">Revenue</th>
+                                    <th onclick="sortResults('match_score')">Match %</th>
+                                    <th onclick="sortResults('succession_risk_score')">Succession</th>
+                                    <th onclick="sortResults('deal_score')">Deal Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="insights-panel">
+                    <h3>🤖 AI Market Insights</h3>
+                    <div id="ai-insights" style="padding: 1rem; background: #f8f9fa; border-radius: 6px; margin: 1rem 0;">
+                        <p>Define your buybox criteria to get AI-powered market analysis and opportunity identification.</p>
+                    </div>
+                    
+                    <h4>Market Metrics</h4>
+                    <div id="market-metrics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0;">
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                            <div style="font-size: 1.2rem; font-weight: 600; color: #3498db;" id="hhi-index">-</div>
+                            <div style="font-size: 0.8rem; color: #666;">HHI Index</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                            <div style="font-size: 1.2rem; font-weight: 600; color: #e67e22;" id="top5-concentration">-</div>
+                            <div style="font-size: 0.8rem; color: #666;">Top 5 Share</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Quick Actions</h4>
+                    <div class="export-buttons">
+                        <button class="btn btn-primary" onclick="refineSearch()">🔍 Refine Search</button>
+                        <button class="btn btn-success" onclick="saveSearch()">💾 Save Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let map = null;
+        let currentResults = [];
+        let currentBuybox = {};
+        let firmMarkers = [];
+        let fragmentationChart = null;
+        
+        // API base URL
+        const API_BASE = 'http://localhost:5000/api';
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            loadDefaultBuybox();
+        });
+        
+        // Initialize Leaflet map
+        function initializeMap() {
+            map = L.map('map').setView([39.8283, -78.8589], 6);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+        
+        // Load example buybox configurations
+        function loadExample(exampleType) {
+            const examples = {
+                'accounting-rollup': {
+                    industry: 'accounting',
+                    geo: 'all',
+                    minRevenue: 1,
+                    maxRevenue: 5,
+                    minEbitda: 300,
+                    maxMultiple: 4,
+                    succession: 'any',
+                    digital: 'any',
+                    additional: 'Focus on fragmented markets with multiple small firms for roll-up opportunities'
+                },
+                'succession-focus': {
+                    industry: 'accounting',
+                    geo: 'all',
+                    minRevenue: 2,
+                    maxRevenue: 10,
+                    minEbitda: 500,
+                    maxMultiple: 3.5,
+                    succession: 'high',
+                    digital: 'limited',
+                    additional: 'Target aging owners (60+) with established firms but limited digital presence'
+                },
+                'growth-platform': {
+                    industry: 'accounting',
+                    geo: 'northeast',
+                    minRevenue: 5,
+                    maxRevenue: 20,
+                    minEbitda: 1000,
+                    maxMultiple: 5,
+                    succession: 'growth',
+                    digital: 'modern',
+                    additional: 'Seek well-run firms with growth potential and modern operations as platform candidates'
+                },
+                'value-play': {
+                    industry: 'accounting',
+                    geo: 'all',
+                    minRevenue: 0.5,
+                    maxRevenue: 3,
+                    minEbitda: 150,
+                    maxMultiple: 3,
+                    succession: 'high',
+                    digital: 'limited',
+                    additional: 'Underperforming firms with improvement potential, focus on operational efficiency gains'
+                }
+            };
+            
+            const example = examples[exampleType];
+            if (!example) return;
+            
+            document.getElementById('industry-focus').value = example.industry;
+            document.getElementById('geo-focus').value = example.geo;
+            document.getElementById('min-revenue').value = example.minRevenue;
+            document.getElementById('max-revenue').value = example.maxRevenue;
+            document.getElementById('min-ebitda').value = example.minEbitda;
+            document.getElementById('max-multiple').value = example.maxMultiple;
+            document.getElementById('succession-priority').value = example.succession;
+            document.getElementById('digital-maturity').value = example.digital;
+            document.getElementById('additional-criteria').value = example.additional;
+        }
+        
+        function loadDefaultBuybox() {
+            loadExample('accounting-rollup');
+        }
+        
+        // Main analysis function
+        async function analyzeBuybox() {
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const spinner = document.getElementById('analyze-spinner');
+            const loading = document.getElementById('loading');
+            
+            // Show loading state
+            analyzeBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            loading.style.display = 'block';
+            
+            // Update API status to loading
+            updateAPIStatus('loading');
+            
+            try {
+                // Collect buybox criteria
+                currentBuybox = {
+                    industry: document.getElementById('industry-focus').value,
+                    geography: document.getElementById('geo-focus').value,
+                    min_revenue: parseFloat(document.getElementById('min-revenue').value) * 1000000,
+                    max_revenue: parseFloat(document.getElementById('max-revenue').value) * 1000000,
+                    min_ebitda: parseFloat(document.getElementById('min-ebitda').value) * 1000,
+                    max_multiple: parseFloat(document.getElementById('max-multiple').value),
+                    succession_priority: document.getElementById('succession-priority').value,
+                    digital_maturity: document.getElementById('digital-maturity').value,
+                    additional_criteria: document.getElementById('additional-criteria').value
+                };
+                
+                // Simulate API calls with realistic delays
+                await simulateAPIAnalysis();
+                
+                // Get comprehensive analysis from API
+                const analysisData = await getComprehensiveAnalysis();
+                
+                // Update UI with API data
+                updateResults(analysisData.matching_firms);
+                updateTAMAnalysis(analysisData.tam_analysis);
+                updateFragmentationAnalysis(analysisData.fragmentation_analysis);
+                updateAIInsights(analysisData.ai_insights);
+                updateMap(analysisData.matching_firms);
+                
+                // Update header stats
+                document.getElementById('matching-firms').textContent = analysisData.total_matches;
+                document.getElementById('tam-value').textContent = formatCurrency(analysisData.tam_analysis.total_tam);
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                showError('Analysis failed. Please try again.');
+            } finally {
+                // Reset loading state
+                analyzeBtn.disabled = false;
+                spinner.style.display = 'none';
+                loading.style.display = 'none';
+                updateAPIStatus('active');
+            }
+        }
+        
+        // Simulate realistic API analysis with delays
+        async function simulateAPIAnalysis() {
+            const apis = ['yelp', 'google', 'census', 'dataaxle', 'openai', 'mastercard'];
+            
+            for (let i = 0; i < apis.length; i++) {
+                const api = apis[i];
+                document.getElementById(api + '-status').className = 'api-status-dot api-loading';
+                
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 700));
+                
+                document.getElementById(api + '-status').className = 'api-status-dot api-active';
+            }
+        }
+        
+        // Get comprehensive analysis from API
+        async function getComprehensiveAnalysis() {
+            // Use the new buybox analysis API
+            const response = await fetch(`${API_BASE}/analyze-buybox`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    buybox: currentBuybox
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Analysis failed');
+            }
+            
+            return data;
+        }
+        
+        // Calculate how well a firm matches the buybox
+        function calculateMatchScore(firm) {
+            let score = 0;
+            let totalFactors = 0;
+            
+            // Revenue match (25% weight)
+            if (firm.revenue_estimate >= currentBuybox.min_revenue && 
+                firm.revenue_estimate <= currentBuybox.max_revenue) {
+                score += 25;
+            } else if (firm.revenue_estimate >= currentBuybox.min_revenue * 0.8) {
+                score += 15; // Partial match
+            }
+            totalFactors += 25;
+            
+            // EBITDA match (20% weight)
+            if (firm.estimated_ebitda >= currentBuybox.min_ebitda) {
+                score += 20;
+            } else if (firm.estimated_ebitda >= currentBuybox.min_ebitda * 0.7) {
+                score += 10;
+            }
+            totalFactors += 20;
+            
+            // Multiple match (15% weight)
+            if (firm.estimated_multiple <= currentBuybox.max_multiple) {
+                score += 15;
+            } else if (firm.estimated_multiple <= currentBuybox.max_multiple * 1.2) {
+                score += 8;
+            }
+            totalFactors += 15;
+            
+            // Succession priority match (20% weight)
+            if (currentBuybox.succession_priority === 'high' && firm.succession_risk_score >= 70) {
+                score += 20;
+            } else if (currentBuybox.succession_priority === 'medium' && firm.succession_risk_score >= 40 && firm.succession_risk_score < 70) {
+                score += 20;
+            } else if (currentBuybox.succession_priority === 'growth' && firm.succession_risk_score < 40) {
+                score += 20;
+            } else if (currentBuybox.succession_priority === 'any') {
+                score += 15;
+            }
+            totalFactors += 20;
+            
+            // Digital maturity match (10% weight)
+            if (currentBuybox.digital_maturity === 'modern' && firm.website && firm.yelp_review_count > 20) {
+                score += 10;
+            } else if (currentBuybox.digital_maturity === 'basic' && firm.website) {
+                score += 10;
+            } else if (currentBuybox.digital_maturity === 'limited' && !firm.website) {
+                score += 10;
+            } else if (currentBuybox.digital_maturity === 'any') {
+                score += 8;
+            }
+            totalFactors += 10;
+            
+            // Geography bonus (10% weight)
+            if (currentBuybox.geography === 'all' || 
+                (currentBuybox.geography === 'northeast' && firm.state === 'MA') ||
+                (currentBuybox.geography === 'southeast' && firm.state === 'FL') ||
+                (currentBuybox.geography === 'ma' && firm.state === 'MA') ||
+                (currentBuybox.geography === 'fl' && firm.state === 'FL')) {
+                score += 10;
+            }
+            totalFactors += 10;
+            
+            return Math.round(score);
+        }
+        
+        // Update TAM analysis display (now receives data from API)
+        function updateTAMAnalysis(tamData) {
+            const tamSection = document.getElementById('tam-analysis');
+            tamSection.style.display = 'block';
+            
+            document.getElementById('tam-total').textContent = formatCurrency(tamData.total_tam);
+            document.getElementById('tam-firms').textContent = tamData.firm_count.toLocaleString();
+            document.getElementById('tam-avg-deal').textContent = formatCurrency(tamData.avg_deal_size);
+            document.getElementById('tam-multiple').textContent = tamData.avg_multiple.toFixed(1) + 'x';
+        }
+        
+        // Update fragmentation analysis display (now receives data from API)
+        function updateFragmentationAnalysis(fragmentationData) {
+            const fragSection = document.getElementById('fragmentation-analysis');
+            fragSection.style.display = 'block';
+            
+            // Create fragmentation chart
+            const ctx = document.getElementById('fragmentation-chart').getContext('2d');
+            
+            if (fragmentationChart) {
+                fragmentationChart.destroy();
+            }
+            
+            const metros = Object.keys(fragmentationData);
+            if (metros.length === 0) {
+                document.getElementById('fragmentation-insights').innerHTML = '<p>No fragmentation data available for current selection.</p>';
+                return;
+            }
+            
+            const fragmentationScores = metros.map(metro => fragmentationData[metro].fragmentation_score);
+            const firmCounts = metros.map(metro => fragmentationData[metro].firm_count);
+            
+            fragmentationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: metros,
+                    datasets: [{
+                        label: 'Fragmentation Score',
+                        data: fragmentationScores,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Update insights
+            const insights = document.getElementById('fragmentation-insights');
+            const bestOpportunity = metros.reduce((best, metro) => 
+                fragmentationData[metro].fragmentation_score > fragmentationData[best].fragmentation_score ? metro : best
+            );
+            
+            insights.innerHTML = `
+                <p><strong>Best Opportunity:</strong> ${bestOpportunity} (${fragmentationData[bestOpportunity].fragmentation_score}% fragmented)</p>
+                <p><strong>Total Markets:</strong> ${metros.length} metro areas analyzed</p>
+            `;
+            
+            // Update market metrics
+            const avgHHI = Object.values(fragmentationData).reduce((sum, data) => sum + data.hhi_index, 0) / metros.length;
+            const avgTop5 = Object.values(fragmentationData).reduce((sum, data) => sum + data.top5_share, 0) / metros.length;
+            
+            document.getElementById('hhi-index').textContent = avgHHI.toFixed(3);
+            document.getElementById('top5-concentration').textContent = avgTop5.toFixed(1) + '%';
+        }
+        
+        // Update AI insights display (now receives data from API)
+        function updateAIInsights(insights) {
+            const aiInsightsDiv = document.getElementById('ai-insights');
+            if (insights && insights.length > 0) {
+                aiInsightsDiv.innerHTML = insights.map(insight => `<p>${insight}</p>`).join('');
+            } else {
+                aiInsightsDiv.innerHTML = '<p>No specific insights available for current selection.</p>';
+            }
+        }
+        
+        // Update results display
+        function updateResults(firms) {
+            const resultsTable = document.getElementById('results-table');
+            const noResults = document.getElementById('no-results');
+            const tbody = document.getElementById('results-tbody');
+            const resultsCount = document.getElementById('results-count');
+            
+            currentResults = firms;
+            resultsCount.textContent = firms.length;
+            
+            if (firms.length === 0) {
+                resultsTable.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            resultsTable.style.display = 'table';
+            noResults.style.display = 'none';
+            
+            tbody.innerHTML = '';
+            firms.slice(0, 50).forEach(firm => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${firm.name}</strong></td>
+                    <td>${firm.city}, ${firm.state}</td>
+                    <td>$${(firm.revenue_estimate / 1000000).toFixed(1)}M</td>
+                    <td><span class="status-badge status-${getMatchClass(firm.match_score)}">${firm.match_score}%</span></td>
+                    <td>
+                        <div class="score-bar">
+                            <div class="score-progress">
+                                <div class="score-fill ${getScoreClass(firm.succession_risk_score)}" style="width: ${firm.succession_risk_score}%;"></div>
+                            </div>
+                            <span>${firm.succession_risk_score}%</span>
+                        </div>
+                    </td>
+                    <td><strong>${firm.deal_score}</strong></td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewFirmDetails('${firm.firm_id}')">👁️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+
+        
+
+        
+        // Update AI insights display
+        function updateAIInsights(insights) {
+            const aiInsightsDiv = document.getElementById('ai-insights');
+            aiInsightsDiv.innerHTML = insights.map(insight => `<p>${insight}</p>`).join('');
+        }
+        
+        // Update map with results
+        function updateMap(firms) {
+            // Clear existing markers
+            firmMarkers.forEach(marker => map.removeLayer(marker));
+            firmMarkers = [];
+            
+            // Add new markers
+            firms.forEach(firm => {
+                const coords = getApproximateCoordinates(firm.city, firm.state);
+                
+                let color = '#e74c3c'; // Low match - red
+                if (firm.match_score >= 90) color = '#27ae60'; // High match - green
+                else if (firm.match_score >= 70) color = '#f39c12'; // Medium match - orange
+                
+                const marker = L.circleMarker(coords, {
+                    radius: Math.max(6, Math.min(12, firm.match_score / 10)),
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+                
+                marker.bindPopup(`
+                    <div style="font-size: 0.9rem;">
+                        <strong>${firm.name}</strong><br>
+                        ${firm.city}, ${firm.state}<br>
+                        <strong>Match Score: ${firm.match_score}%</strong><br>
+                        Revenue: $${(firm.revenue_estimate / 1000000).toFixed(1)}M<br>
+                        EBITDA: $${(firm.estimated_ebitda / 1000).toFixed(0)}K<br>
+                        <button onclick="viewFirmDetails('${firm.firm_id}')" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">View Details</button>
+                    </div>
+                `);
+                
+                firmMarkers.push(marker);
+            });
+            
+            // Fit map to show all markers
+            if (firmMarkers.length > 0) {
+                const group = new L.featureGroup(firmMarkers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+        
+        // Update API status indicators
+        function updateAPIStatus(status) {
+            const apis = ['yelp', 'google', 'census', 'dataaxle', 'openai', 'mastercard'];
+            apis.forEach(api => {
+                document.getElementById(api + '-status').className = `api-status-dot api-${status}`;
+            });
+        }
+        
+        // Utility functions
+        function formatCurrency(amount) {
+            if (amount >= 1000000000) {
+                return '$' + (amount / 1000000000).toFixed(1) + 'B';
+            } else if (amount >= 1000000) {
+                return '$' + (amount / 1000000).toFixed(1) + 'M';
+            } else if (amount >= 1000) {
+                return '$' + (amount / 1000).toFixed(0) + 'K';
+            }
+            return '$' + amount.toLocaleString();
+        }
+        
+        function getMatchClass(score) {
+            if (score >= 90) return 'high';
+            if (score >= 70) return 'medium';
+            return 'low';
+        }
+        
+        function getScoreClass(score) {
+            if (score >= 70) return 'high';
+            if (score >= 40) return 'medium';
+            return 'low';
+        }
+        
+        function getApproximateCoordinates(city, state) {
+            const cityCoords = {
+                'Boston': [42.3601, -71.0589],
+                'Cambridge': [42.3736, -71.1097],
+                'Worcester': [42.2626, -71.8023],
+                'Miami': [25.7617, -80.1918],
+                'Orlando': [28.5383, -81.3792],
+                'Tampa': [27.9506, -82.4572]
+            };
+            
+            const baseCoords = cityCoords[city] || (state === 'MA' ? [42.3601, -71.0589] : [27.7663, -82.6404]);
+            return [
+                baseCoords[0] + (Math.random() - 0.5) * 0.1,
+                baseCoords[1] + (Math.random() - 0.5) * 0.1
+            ];
+        }
+        
+        function showError(message) {
+            alert(message); // Could be replaced with toast notification
+        }
+        
+        // Additional functions
+        function sortResults(column) {
+            // Implementation for sorting results
+            console.log('Sorting by:', column);
+        }
+        
+        function viewFirmDetails(firmId) {
+            // Implementation for viewing firm details
+            console.log('Viewing firm:', firmId);
+        }
+        
+        function exportResults() {
+            // Implementation for exporting results
+            console.log('Exporting results');
+        }
+        
+        function generateReport() {
+            // Implementation for generating report
+            console.log('Generating report');
+        }
+        
+        function refineSearch() {
+            // Implementation for refining search
+            console.log('Refining search');
+        }
+        
+        function saveSearch() {
+            // Implementation for saving search
+            console.log('Saving search');
+        }
+    </script>
+</body>
+</html>

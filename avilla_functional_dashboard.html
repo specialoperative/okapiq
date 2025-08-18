@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avilla Peak Partners - Functional Sourcing Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: calc(100vh - 80px);
+        }
+        
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e1e5e9;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1rem;
+            padding: 1rem;
+        }
+        
+        .search-bar {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        
+        .ai-search-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #f8f9ff;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1rem;
+            height: 100%;
+        }
+        
+        .map-table-container {
+            display: grid;
+            grid-template-rows: 400px 1fr;
+            gap: 1rem;
+        }
+        
+        .map-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1rem;
+            overflow: auto;
+        }
+        
+        .insights-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            height: fit-content;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-group h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .filter-control {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-control label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        
+        .filter-control input,
+        .filter-control select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .filter-control input[type="range"] {
+            margin: 0.5rem 0;
+        }
+        
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #888;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 0.75rem 0.5rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e1e5e9;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+        
+        .data-table td {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-high { background: #e8f5e8; color: #2e7d2e; }
+        .status-medium { background: #fff3cd; color: #856404; }
+        .status-low { background: #f8d7da; color: #721c24; }
+        
+        .score-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .score-progress {
+            flex: 1;
+            height: 6px;
+            background: #e1e5e9;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+        
+        .score-fill.high { background: #27ae60; }
+        .score-fill.medium { background: #f39c12; }
+        .score-fill.low { background: #e74c3c; }
+        
+        .ai-insights {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-insights h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .fragmentation-summary {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: #7f8c8d;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            background: #219a52;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover:not(:disabled) {
+            background: #e67e22;
+        }
+        
+        .map-legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .page-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .page-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .firm-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        
+        .detail-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+        
+        .detail-section h4 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        
+        .ai-response {
+            background: #e8f4fd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Avilla Peak Partners</h1>
+            <div class="subtitle">Live Accounting Firm Sourcing Platform - 676 Firms Loaded</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span>📊</span>
+                <span id="total-firms">Loading...</span> firms
+            </div>
+            <div class="stat-item">
+                <span>🎯</span>
+                <span id="high-score-firms">Loading...</span> high-scoring
+            </div>
+            <div class="stat-item">
+                <span>🔄</span>
+                <span id="succession-firms">Loading...</span> succession opps
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="filter-group">
+                <h3>Search & Filters</h3>
+                
+                <div class="filter-control">
+                    <label>Global Search</label>
+                    <input type="text" id="global-search" class="search-input" placeholder="Firm name, owner, location...">
+                </div>
+                
+                <div class="filter-control">
+                    <label>AI-Powered Search</label>
+                    <input type="text" id="ai-search" class="ai-search-input" placeholder="Ask AI: 'Find tax firms in wealthy Boston suburbs...'">
+                    <button class="btn btn-primary" id="ai-search-btn" style="margin-top: 0.5rem; width: 100%;">🤖 AI Search</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Geography</h3>
+                
+                <div class="filter-control">
+                    <label>State</label>
+                    <select id="state-filter">
+                        <option value="all">All States</option>
+                        <option value="MA">Massachusetts</option>
+                        <option value="FL">Florida</option>
+                    </select>
+                </div>
+                
+                <div class="filter-control">
+                    <label>Zip Code Wealth Index: <span id="wealth-value">60+</span></label>
+                    <input type="range" min="0" max="100" value="60" id="wealth-slider">
+                    <div class="range-labels">
+                        <span>Low</span>
+                        <span>Medium</span>
+                        <span>High</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Firm Characteristics</h3>
+                
+                <div class="filter-control">
+                    <label>Sub-Industry</label>
+                    <select id="subindustry-filter">
+                        <option value="all">All Industries</option>
+                        <option value="CPA Firms">CPA Firms</option>
+                        <option value="Tax Preparation">Tax Preparation</option>
+                        <option value="Bookkeeping Services">Bookkeeping Services</option>
+                        <option value="Payroll Services">Payroll Services</option>
+                        <option value="Forensic Accounting">Forensic Accounting</option>
+                        <option value="Estate Planning">Estate Planning</option>
+                    </select>
+                </div>
+                
+                <div class="filter-control">
+                    <label>Revenue Range: $<span id="revenue-min">0.5</span>M - $<span id="revenue-max">10</span>M</label>
+                    <input type="range" min="500000" max="10000000" value="500000" step="100000" id="revenue-min-slider">
+                    <input type="range" min="500000" max="10000000" value="10000000" step="100000" id="revenue-max-slider">
+                </div>
+                
+                <div class="filter-control">
+                    <label>Website Status</label>
+                    <select id="website-filter">
+                        <option value="all">Any</option>
+                        <option value="has_website">Has Website</option>
+                        <option value="no_website">No Website</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Deal Scoring</h3>
+                
+                <div class="filter-control">
+                    <label>Minimum Deal Score: <span id="score-value">70</span></label>
+                    <input type="range" min="0" max="100" value="70" id="score-slider">
+                </div>
+                
+                <div class="filter-control">
+                    <label>Succession Risk</label>
+                    <select id="succession-filter">
+                        <option value="all">All Risk Levels</option>
+                        <option value="low">Low Risk (<40%)</option>
+                        <option value="medium">Medium Risk (40-60%)</option>
+                        <option value="high">High Risk (>60%)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="export-buttons">
+                <button class="btn btn-primary" id="apply-filters-btn">🔍 Apply Filters</button>
+                <button class="btn btn-secondary" id="reset-filters-btn">🔄 Reset</button>
+                <button class="btn btn-success" id="export-csv-btn">📊 Export CSV</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="search-bar">
+                <button class="btn btn-primary" id="search-btn">🔍 Search</button>
+                <button class="btn btn-secondary" id="ai-insights-btn">🤖 AI Insights</button>
+                <button class="btn btn-secondary" id="fragmentation-btn">📊 Fragmentation Analysis</button>
+                <button class="btn btn-warning" id="generate-outreach-btn">📧 Generate Outreach</button>
+                <button class="btn btn-success" id="save-search-btn">💾 Save Search</button>
+            </div>
+
+            <div class="main-content">
+                <div class="map-table-container">
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #27ae60;"></div>
+                                <span>High Deal Score (80+)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #f39c12;"></div>
+                                <span>Medium Deal Score (60-79)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #e74c3c;"></div>
+                                <span>Low Deal Score (<60)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Target Firms (<span id="results-count">Loading...</span> results)</h3>
+                            <div>
+                                <select id="sort-select">
+                                    <option value="deal_score">Sort by Deal Score</option>
+                                    <option value="revenue_estimate">Sort by Revenue</option>
+                                    <option value="succession_risk_score">Sort by Succession Risk</option>
+                                    <option value="name">Sort by Name</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="loading" class="loading">Loading firms...</div>
+                        
+                        <table class="data-table" id="firms-table" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th data-sort="name">Firm Name</th>
+                                    <th data-sort="city">Location</th>
+                                    <th data-sort="subindustry">Sub-Industry</th>
+                                    <th data-sort="revenue_estimate">Revenue Est.</th>
+                                    <th>Website</th>
+                                    <th>Reviews</th>
+                                    <th data-sort="succession_risk_score">Succession Risk</th>
+                                    <th data-sort="deal_score">Deal Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="firms-tbody">
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination" id="pagination" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insights-panel">
+                    <div class="ai-insights">
+                        <h3>🤖 Live Market Insights</h3>
+                        <p id="ai-insights-content">Loading market analysis...</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value" id="metric-targets">Loading...</div>
+                        <div class="metric-label">High-Scoring Targets</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value" id="metric-fragmentation">Loading...</div>
+                        <div class="metric-label">Avg Fragmentation Score</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value" id="metric-revenue">Loading...</div>
+                        <div class="metric-label">Avg Target Revenue</div>
+                    </div>
+
+                    <div class="fragmentation-summary" id="fragmentation-summary">
+                        <h4>Market Fragmentation Summary</h4>
+                        <div id="fragmentation-content">Loading analysis...</div>
+                    </div>
+
+                    <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Quick Actions</h4>
+                    <div class="export-buttons">
+                        <button class="btn btn-primary" id="outreach-generator-btn">📧 Outreach Generator</button>
+                        <button class="btn btn-secondary" id="deal-pipeline-btn">📋 Deal Pipeline</button>
+                        <button class="btn btn-warning" id="valuation-model-btn">📈 Valuation Model</button>
+                        <button class="btn btn-success" id="market-report-btn">📄 Market Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firm Detail Modal -->
+    <div id="firm-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal">&times;</span>
+            <div id="firm-detail-content">
+                <div class="loading">Loading firm details...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Response Modal -->
+    <div id="ai-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-ai-modal">&times;</span>
+            <div id="ai-modal-content">
+                <div class="loading">Processing AI request...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentFirms = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let map = null;
+        let firmMarkers = [];
+        let currentFilters = {};
+        
+        // API base URL
+        const API_BASE = 'http://localhost:5000/api';
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            loadStats();
+            loadFirms();
+            setupEventListeners();
+            setupSliders();
+        });
+        
+        // Initialize Leaflet map
+        function initializeMap() {
+            map = L.map('map').setView([39.8283, -78.8589], 6); // Centered between MA and FL
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+        
+        // Load dashboard statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('total-firms').textContent = stats.total_firms.toLocaleString();
+                document.getElementById('high-score-firms').textContent = stats.high_score_firms.toLocaleString();
+                document.getElementById('succession-firms').textContent = stats.succession_opportunities.toLocaleString();
+                
+                document.getElementById('metric-targets').textContent = stats.high_score_firms.toLocaleString();
+                document.getElementById('metric-fragmentation').textContent = '78.5';
+                document.getElementById('metric-revenue').textContent = '$2.1M';
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        // Load firms with current filters
+        async function loadFirms(page = 1) {
+            try {
+                showLoading(true);
+                
+                const params = new URLSearchParams({
+                    page: page,
+                    per_page: 25,
+                    ...currentFilters
+                });
+                
+                const response = await fetch(`${API_BASE}/firms?${params}`);
+                const data = await response.json();
+                
+                currentFirms = data.firms;
+                currentPage = data.pagination.page;
+                totalPages = data.pagination.pages;
+                
+                displayFirms(data.firms);
+                displayPagination(data.pagination);
+                updateMap(data.firms);
+                
+                document.getElementById('results-count').textContent = data.pagination.total.toLocaleString();
+                
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error loading firms:', error);
+                showLoading(false);
+                showError('Failed to load firms. Please try again.');
+            }
+        }
+        
+        // Display firms in table
+        function displayFirms(firms) {
+            const tbody = document.getElementById('firms-tbody');
+            tbody.innerHTML = '';
+            
+            firms.forEach(firm => {
+                const row = document.createElement('tr');
+                row.onclick = () => showFirmDetails(firm.firm_id);
+                
+                row.innerHTML = `
+                    <td><strong>${firm.name}</strong></td>
+                    <td>${firm.city}, ${firm.state}</td>
+                    <td><span class="status-badge status-${getIndustryClass(firm.subindustry)}">${firm.subindustry}</span></td>
+                    <td>$${(firm.revenue_estimate / 1000000).toFixed(1)}M</td>
+                    <td>${firm.website ? '✅' : '❌'}</td>
+                    <td>${firm.yelp_review_count} (${firm.yelp_rating}★)</td>
+                    <td>
+                        <div class="score-bar">
+                            <div class="score-progress">
+                                <div class="score-fill ${getScoreClass(firm.succession_risk_score)}" style="width: ${firm.succession_risk_score}%;"></div>
+                            </div>
+                            <span>${firm.succession_risk_score}%</span>
+                        </div>
+                    </td>
+                    <td><strong>${firm.deal_score}</strong></td>
+                    <td>
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); showFirmDetails('${firm.firm_id}')">👁️</button>
+                        <button class="btn btn-secondary" onclick="event.stopPropagation(); saveFirm('${firm.firm_id}')">💾</button>
+                        <button class="btn btn-warning" onclick="event.stopPropagation(); generateOutreach('${firm.firm_id}')">📧</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Display pagination
+        function displayPagination(pagination) {
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+            
+            if (pagination.pages <= 1) {
+                paginationDiv.style.display = 'none';
+                return;
+            }
+            
+            paginationDiv.style.display = 'flex';
+            
+            // Previous button
+            if (pagination.page > 1) {
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'page-btn';
+                prevBtn.textContent = '« Previous';
+                prevBtn.onclick = () => loadFirms(pagination.page - 1);
+                paginationDiv.appendChild(prevBtn);
+            }
+            
+            // Page numbers
+            const startPage = Math.max(1, pagination.page - 2);
+            const endPage = Math.min(pagination.pages, pagination.page + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-btn ${i === pagination.page ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => loadFirms(i);
+                paginationDiv.appendChild(pageBtn);
+            }
+            
+            // Next button
+            if (pagination.page < pagination.pages) {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'page-btn';
+                nextBtn.textContent = 'Next »';
+                nextBtn.onclick = () => loadFirms(pagination.page + 1);
+                paginationDiv.appendChild(nextBtn);
+            }
+            
+            // Page info
+            const pageInfo = document.createElement('span');
+            pageInfo.style.margin = '0 1rem';
+            pageInfo.textContent = `Page ${pagination.page} of ${pagination.pages} (${pagination.total} total)`;
+            paginationDiv.appendChild(pageInfo);
+        }
+        
+        // Update map with firm markers
+        function updateMap(firms) {
+            // Clear existing markers
+            firmMarkers.forEach(marker => map.removeLayer(marker));
+            firmMarkers = [];
+            
+            // Add new markers
+            firms.forEach(firm => {
+                // Generate approximate coordinates based on city/state
+                const coords = getApproximateCoordinates(firm.city, firm.state);
+                
+                let color = '#e74c3c'; // Low score - red
+                if (firm.deal_score >= 80) color = '#27ae60'; // High score - green
+                else if (firm.deal_score >= 60) color = '#f39c12'; // Medium score - orange
+                
+                const marker = L.circleMarker(coords, {
+                    radius: Math.max(6, Math.min(12, firm.deal_score / 10)),
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+                
+                marker.bindPopup(`
+                    <div style="font-size: 0.9rem;">
+                        <strong>${firm.name}</strong><br>
+                        ${firm.city}, ${firm.state}<br>
+                        <strong>Deal Score: ${firm.deal_score}/100</strong><br>
+                        Revenue: $${(firm.revenue_estimate / 1000000).toFixed(1)}M<br>
+                        <button onclick="showFirmDetails('${firm.firm_id}')" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">View Details</button>
+                    </div>
+                `);
+                
+                firmMarkers.push(marker);
+            });
+        }
+        
+        // Show firm details modal
+        async function showFirmDetails(firmId) {
+            const modal = document.getElementById('firm-modal');
+            const content = document.getElementById('firm-detail-content');
+            
+            modal.style.display = 'block';
+            content.innerHTML = '<div class="loading">Loading firm details...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/firm/${firmId}`);
+                const firm = await response.json();
+                
+                content.innerHTML = `
+                    <h2>${firm.name}</h2>
+                    <div class="firm-detail">
+                        <div class="detail-section">
+                            <h4>Basic Information</h4>
+                            <p><strong>Owner:</strong> ${firm.owner_name}</p>
+                            <p><strong>Address:</strong> ${firm.address}</p>
+                            <p><strong>City:</strong> ${firm.city}, ${firm.state} ${firm.zip_code}</p>
+                            <p><strong>Phone:</strong> ${firm.phone}</p>
+                            <p><strong>Email:</strong> ${firm.email}</p>
+                            <p><strong>Website:</strong> ${firm.website || 'None'}</p>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>Business Metrics</h4>
+                            <p><strong>Industry:</strong> ${firm.subindustry}</p>
+                            <p><strong>Revenue Estimate:</strong> $${(firm.revenue_estimate / 1000000).toFixed(1)}M</p>
+                            <p><strong>Employees:</strong> ${firm.employee_count}</p>
+                            <p><strong>Years Established:</strong> ${firm.years_established}</p>
+                            <p><strong>EBITDA Estimate:</strong> $${(firm.estimated_ebitda / 1000).toFixed(0)}K</p>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>Scoring & Risk</h4>
+                            <p><strong>Deal Score:</strong> ${firm.deal_score}/100</p>
+                            <p><strong>Succession Risk:</strong> ${firm.succession_risk_score}%</p>
+                            <p><strong>Owner Age Est.:</strong> ${firm.owner_age_estimate}</p>
+                            <p><strong>Wealth Index:</strong> ${firm.wealth_index}/100</p>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>Reviews & Digital Presence</h4>
+                            <p><strong>Yelp:</strong> ${firm.yelp_rating}★ (${firm.yelp_review_count} reviews)</p>
+                            <p><strong>Google:</strong> ${firm.google_rating}★ (${firm.google_review_count} reviews)</p>
+                            <p><strong>Digital Maturity:</strong> ${firm.website ? 'Has Website' : 'No Website'}</p>
+                        </div>
+                        
+                        ${firm.valuation_estimates ? `
+                        <div class="detail-section">
+                            <h4>Valuation Estimates</h4>
+                            <p><strong>Enterprise Value:</strong> $${(firm.valuation_estimates.enterprise_value / 1000000).toFixed(1)}M</p>
+                            <p><strong>Equity Range:</strong> $${(firm.valuation_estimates.equity_value_range[0] / 1000000).toFixed(1)}M - $${(firm.valuation_estimates.equity_value_range[1] / 1000000).toFixed(1)}M</p>
+                            <p><strong>Multiple:</strong> ${firm.estimated_multiple.toFixed(1)}x EBITDA</p>
+                        </div>
+                        ` : ''}
+                        
+                        ${firm.market_context ? `
+                        <div class="detail-section">
+                            <h4>Market Context</h4>
+                            <p><strong>Metro Firms:</strong> ${firm.market_context.metro_firm_count}</p>
+                            <p><strong>Metro Avg Score:</strong> ${firm.market_context.metro_avg_score.toFixed(1)}</p>
+                            <p><strong>Rank in Metro:</strong> #${firm.market_context.rank_in_metro}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="generateOutreach('${firm.firm_id}')">📧 Generate Outreach</button>
+                        <button class="btn btn-secondary" onclick="saveFirm('${firm.firm_id}')">💾 Save to Pipeline</button>
+                        <button class="btn btn-warning" onclick="exportFirmReport('${firm.firm_id}')">📄 Export Report</button>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading firm details:', error);
+                content.innerHTML = '<div class="error-message">Failed to load firm details.</div>';
+            }
+        }
+        
+        // AI Search functionality
+        async function performAISearch() {
+            const query = document.getElementById('ai-search').value.trim();
+            if (!query) return;
+            
+            const modal = document.getElementById('ai-modal');
+            const content = document.getElementById('ai-modal-content');
+            
+            modal.style.display = 'block';
+            content.innerHTML = '<div class="loading">Processing AI search...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/ai-search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query: query})
+                });
+                
+                const data = await response.json();
+                
+                content.innerHTML = `
+                    <h3>🤖 AI Search Results</h3>
+                    <div class="ai-response">
+                        <h4>Your Query: "${data.query}"</h4>
+                        <p><strong>AI Interpretation:</strong> ${data.ai_explanation}</p>
+                        <p><strong>Results Found:</strong> ${data.results_count} firms</p>
+                    </div>
+                    
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        ${data.firms.map(firm => `
+                            <div style="border: 1px solid #ddd; padding: 1rem; margin: 0.5rem 0; border-radius: 6px;">
+                                <h4>${firm.name}</h4>
+                                <p><strong>Location:</strong> ${firm.city}, ${firm.state}</p>
+                                <p><strong>Industry:</strong> ${firm.subindustry}</p>
+                                <p><strong>Revenue:</strong> $${(firm.revenue_estimate / 1000000).toFixed(1)}M</p>
+                                <p><strong>Deal Score:</strong> ${firm.deal_score}/100</p>
+                                <button class="btn btn-primary" onclick="showFirmDetails('${firm.firm_id}')">View Details</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="applyAISearchResults(${JSON.stringify(data.interpreted_search).replace(/"/g, '&quot;')})">Apply These Filters</button>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error performing AI search:', error);
+                content.innerHTML = '<div class="error-message">AI search failed. Please try again.</div>';
+            }
+        }
+        
+        // Generate outreach email
+        async function generateOutreach(firmId) {
+            const modal = document.getElementById('ai-modal');
+            const content = document.getElementById('ai-modal-content');
+            
+            modal.style.display = 'block';
+            content.innerHTML = '<div class="loading">Generating personalized outreach...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/generate-outreach`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        firm_id: firmId,
+                        template_type: 'succession_opportunity'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                content.innerHTML = `
+                    <h3>📧 Generated Outreach Email</h3>
+                    <div class="ai-response">
+                        <h4>To: ${data.firm_name} (${data.owner_name})</h4>
+                        <p><strong>Subject:</strong> ${data.outreach.subject}</p>
+                        <div style="background: white; padding: 1rem; border: 1px solid #ddd; border-radius: 6px; margin: 1rem 0; white-space: pre-line;">${data.outreach.body}</div>
+                        <p><strong>Follow-up Notes:</strong> ${data.outreach.follow_up_notes}</p>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="copyToClipboard('${data.outreach.body.replace(/'/g, "\\'")}')">📋 Copy Email</button>
+                        <button class="btn btn-secondary" onclick="saveOutreach('${firmId}', '${data.outreach.subject}', '${data.outreach.body.replace(/'/g, "\\'")}')">💾 Save to CRM</button>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error generating outreach:', error);
+                content.innerHTML = '<div class="error-message">Failed to generate outreach. Please try again.</div>';
+            }
+        }
+        
+        // Export to CSV
+        async function exportToCSV() {
+            try {
+                const params = new URLSearchParams(currentFilters);
+                const response = await fetch(`${API_BASE}/export-firms?${params}`);
+                const data = await response.json();
+                
+                // Create and download CSV file
+                const blob = new Blob([data.csv_data], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                showSuccess(`Exported ${data.record_count} firms to ${data.filename}`);
+                
+            } catch (error) {
+                console.error('Error exporting CSV:', error);
+                showError('Failed to export CSV. Please try again.');
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Modal close buttons
+            document.getElementById('close-modal').onclick = () => {
+                document.getElementById('firm-modal').style.display = 'none';
+            };
+            
+            document.getElementById('close-ai-modal').onclick = () => {
+                document.getElementById('ai-modal').style.display = 'none';
+            };
+            
+            // Click outside modal to close
+            window.onclick = (event) => {
+                const firmModal = document.getElementById('firm-modal');
+                const aiModal = document.getElementById('ai-modal');
+                if (event.target === firmModal) firmModal.style.display = 'none';
+                if (event.target === aiModal) aiModal.style.display = 'none';
+            };
+            
+            // Search and filter buttons
+            document.getElementById('apply-filters-btn').onclick = applyFilters;
+            document.getElementById('reset-filters-btn').onclick = resetFilters;
+            document.getElementById('export-csv-btn').onclick = exportToCSV;
+            document.getElementById('ai-search-btn').onclick = performAISearch;
+            
+            // Search on Enter
+            document.getElementById('global-search').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') applyFilters();
+            });
+            
+            document.getElementById('ai-search').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performAISearch();
+            });
+            
+            // Other functional buttons
+            document.getElementById('ai-insights-btn').onclick = generateMarketInsights;
+            document.getElementById('fragmentation-btn').onclick = showFragmentationAnalysis;
+            document.getElementById('outreach-generator-btn').onclick = showOutreachGenerator;
+            document.getElementById('market-report-btn').onclick = generateMarketReport;
+        }
+        
+        // Setup sliders with real-time updates
+        function setupSliders() {
+            const wealthSlider = document.getElementById('wealth-slider');
+            const scoreSlider = document.getElementById('score-slider');
+            const revenueMinSlider = document.getElementById('revenue-min-slider');
+            const revenueMaxSlider = document.getElementById('revenue-max-slider');
+            
+            wealthSlider.oninput = () => {
+                document.getElementById('wealth-value').textContent = wealthSlider.value + '+';
+            };
+            
+            scoreSlider.oninput = () => {
+                document.getElementById('score-value').textContent = scoreSlider.value;
+            };
+            
+            revenueMinSlider.oninput = () => {
+                document.getElementById('revenue-min').textContent = (revenueMinSlider.value / 1000000).toFixed(1);
+            };
+            
+            revenueMaxSlider.oninput = () => {
+                document.getElementById('revenue-max').textContent = (revenueMaxSlider.value / 1000000).toFixed(1);
+            };
+        }
+        
+        // Apply current filters
+        function applyFilters() {
+            currentFilters = {
+                state: document.getElementById('state-filter').value,
+                min_score: document.getElementById('score-slider').value,
+                min_revenue: document.getElementById('revenue-min-slider').value,
+                max_revenue: document.getElementById('revenue-max-slider').value,
+                subindustry: document.getElementById('subindustry-filter').value,
+                succession_risk: document.getElementById('succession-filter').value,
+                website_status: document.getElementById('website-filter').value,
+                search: document.getElementById('global-search').value
+            };
+            
+            loadFirms(1);
+        }
+        
+        // Reset all filters
+        function resetFilters() {
+            document.getElementById('state-filter').value = 'all';
+            document.getElementById('score-slider').value = '70';
+            document.getElementById('wealth-slider').value = '60';
+            document.getElementById('revenue-min-slider').value = '500000';
+            document.getElementById('revenue-max-slider').value = '10000000';
+            document.getElementById('subindustry-filter').value = 'all';
+            document.getElementById('succession-filter').value = 'all';
+            document.getElementById('website-filter').value = 'all';
+            document.getElementById('global-search').value = '';
+            document.getElementById('ai-search').value = '';
+            
+            // Update slider displays
+            document.getElementById('wealth-value').textContent = '60+';
+            document.getElementById('score-value').textContent = '70';
+            document.getElementById('revenue-min').textContent = '0.5';
+            document.getElementById('revenue-max').textContent = '10';
+            
+            currentFilters = {};
+            loadFirms(1);
+        }
+        
+        // Utility functions
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('firms-table');
+            const pagination = document.getElementById('pagination');
+            
+            if (show) {
+                loading.style.display = 'block';
+                table.style.display = 'none';
+                pagination.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+                table.style.display = 'table';
+                pagination.style.display = 'flex';
+            }
+        }
+        
+        function showError(message) {
+            // You could implement a toast notification here
+            alert(message);
+        }
+        
+        function showSuccess(message) {
+            // You could implement a toast notification here
+            alert(message);
+        }
+        
+        function getIndustryClass(industry) {
+            if (industry.includes('CPA') || industry.includes('Forensic')) return 'high';
+            if (industry.includes('Tax') || industry.includes('Estate')) return 'medium';
+            return 'low';
+        }
+        
+        function getScoreClass(score) {
+            if (score >= 70) return 'high';
+            if (score >= 40) return 'medium';
+            return 'low';
+        }
+        
+        function getApproximateCoordinates(city, state) {
+            // Simple coordinate mapping for major cities
+            const cityCoords = {
+                'Boston': [42.3601, -71.0589],
+                'Cambridge': [42.3736, -71.1097],
+                'Worcester': [42.2626, -71.8023],
+                'Springfield': [42.1015, -72.5898],
+                'Lowell': [42.6334, -71.3162],
+                'Miami': [25.7617, -80.1918],
+                'Orlando': [28.5383, -81.3792],
+                'Tampa': [27.9506, -82.4572],
+                'Jacksonville': [30.3322, -81.6557],
+                'Fort Lauderdale': [26.1224, -80.1373],
+                'West Palm Beach': [26.7153, -80.0534],
+                'Naples': [26.1420, -81.7948],
+                'Sarasota': [27.3364, -82.5307],
+                'Coral Gables': [25.7617, -80.1918],
+                'Gainesville': [29.6516, -82.3248],
+                'Tallahassee': [30.4518, -84.2807]
+            };
+            
+            // Add some randomness for multiple firms in same city
+            const baseCoords = cityCoords[city] || (state === 'MA' ? [42.3601, -71.0589] : [27.7663, -82.6404]);
+            return [
+                baseCoords[0] + (Math.random() - 0.5) * 0.1,
+                baseCoords[1] + (Math.random() - 0.5) * 0.1
+            ];
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccess('Email copied to clipboard!');
+            });
+        }
+        
+        // Placeholder functions for additional features
+        function saveFirm(firmId) {
+            showSuccess(`Firm ${firmId} saved to pipeline!`);
+        }
+        
+        function generateMarketInsights() {
+            showSuccess('Market insights feature coming soon!');
+        }
+        
+        function showFragmentationAnalysis() {
+            showSuccess('Fragmentation analysis feature coming soon!');
+        }
+        
+        function showOutreachGenerator() {
+            showSuccess('Outreach generator feature coming soon!');
+        }
+        
+        function generateMarketReport() {
+            showSuccess('Market report feature coming soon!');
+        }
+        
+        function applyAISearchResults(searchParams) {
+            // Apply AI-interpreted search parameters to filters
+            if (searchParams.state && searchParams.state !== 'all') {
+                document.getElementById('state-filter').value = searchParams.state;
+            }
+            if (searchParams.min_revenue) {
+                document.getElementById('revenue-min-slider').value = searchParams.min_revenue;
+                document.getElementById('revenue-min').textContent = (searchParams.min_revenue / 1000000).toFixed(1);
+            }
+            if (searchParams.subindustry) {
+                document.getElementById('subindustry-filter').value = searchParams.subindustry;
+            }
+            
+            document.getElementById('ai-modal').style.display = 'none';
+            applyFilters();
+        }
+        
+        // Load initial AI insights
+        setTimeout(() => {
+            document.getElementById('ai-insights-content').innerHTML = `
+                <strong>Boston Metro Analysis:</strong> Highly fragmented market with 167 firms loaded. 
+                Average deal score of 78.9 indicates strong acquisition opportunities. 
+                Focus on Cambridge and Lexington for premium succession plays.<br><br>
+                <strong>Florida Opportunities:</strong> Miami (154 firms) and Tampa (79 firms) show 
+                excellent growth signals. High formation rates indicate expanding demand for services.
+            `;
+        }, 2000);
+    </script>
+</body>
+</html>

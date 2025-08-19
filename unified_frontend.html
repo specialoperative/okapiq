@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏦 Okapiq - Unified SMB Intelligence Platform</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 25%, #6366f1 50%, #8b5cf6 75%, #a855f7 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #1f2937;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .loading { animation: pulse 2s infinite; }
+        .floating { animation: float 3s ease-in-out infinite; }
+        
+        .heatmap-container {
+            height: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .tab-active {
+            background: rgba(251, 191, 36, 0.2);
+            border-bottom: 2px solid #fbbf24;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <div class="container mx-auto px-6 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="floating mb-6">
+                <h1 class="text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                    🏦 Okapiq
+                </h1>
+            </div>
+            <p class="text-2xl mb-3 font-semibold">The Bloomberg Terminal for Main Street</p>
+            <p class="text-lg opacity-90 max-w-3xl mx-auto">
+                Advanced SMB Valuation • Real-Time Market Analysis • Instant Opportunity Heatmaps
+            </p>
+            <div class="flex justify-center space-x-4 mt-6">
+                <span class="px-4 py-2 bg-white/20 rounded-full text-sm">Monte Carlo Valuation</span>
+                <span class="px-4 py-2 bg-white/20 rounded-full text-sm">TAM/TSM Analysis</span>
+                <span class="px-4 py-2 bg-white/20 rounded-full text-sm">Live Heatmaps</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center mb-8">
+            <div class="glass-card rounded-2xl p-2 flex space-x-2">
+                <button onclick="showTab('business')" id="businessTab" class="tab-active px-6 py-3 rounded-xl transition-all">
+                    🔍 Business Analysis
+                </button>
+                <button onclick="showTab('heatmap')" id="heatmapTab" class="px-6 py-3 rounded-xl transition-all hover:bg-white/10">
+                    🗺️ Market Heatmap
+                </button>
+                <button onclick="showTab('batch')" id="batchTab" class="px-6 py-3 rounded-xl transition-all hover:bg-white/10">
+                    📊 Batch Analysis
+                </button>
+                <button onclick="showTab('insights')" id="insightsTab" class="px-6 py-3 rounded-xl transition-all hover:bg-white/10">
+                    💡 Market Insights
+                </button>
+            </div>
+        </div>
+
+        <!-- Business Analysis Tab -->
+        <div id="businessContent" class="tab-content">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Input Form -->
+                <div class="xl:col-span-1">
+                    <div class="glass-card rounded-2xl p-8">
+                        <h3 class="text-2xl font-bold mb-6">🔍 Business Intelligence</h3>
+                        <form id="businessForm" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Business Name</label>
+                                <input type="text" id="businessName" placeholder="Joe's HVAC Services" 
+                                       class="w-full p-4 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/70 focus:border-yellow-400 focus:outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Location</label>
+                                <input type="text" id="location" placeholder="Dallas, TX" 
+                                       class="w-full p-4 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/70 focus:border-yellow-400 focus:outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Analysis Type</label>
+                                <select id="analysisType" class="w-full p-4 rounded-xl bg-white/20 border border-white/30 text-white focus:border-yellow-400 focus:outline-none transition-colors">
+                                    <option value="comprehensive">🎯 Comprehensive Analysis</option>
+                                    <option value="valuation">💰 Valuation Only</option>
+                                    <option value="market">📈 Market Analysis Only</option>
+                                    <option value="opportunities">🚀 Opportunities Only</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full btn-primary py-4 px-6 rounded-xl text-lg font-bold">
+                                🚀 Analyze Business
+                            </button>
+                        </form>
+                        
+                        <!-- Quick Actions -->
+                        <div class="mt-8 space-y-3">
+                            <h4 class="font-semibold text-sm opacity-90">Quick Examples:</h4>
+                            <button onclick="quickAnalysis('Starbucks', 'Seattle, WA')" class="w-full text-left p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm">
+                                ☕ Starbucks in Seattle, WA
+                            </button>
+                            <button onclick="quickAnalysis('Local HVAC Company', 'Houston, TX')" class="w-full text-left p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm">
+                                🔧 HVAC Company in Houston, TX
+                            </button>
+                            <button onclick="quickAnalysis('Downtown Dental Practice', 'Miami, FL')" class="w-full text-left p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm">
+                                🦷 Dental Practice in Miami, FL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Display -->
+                <div class="xl:col-span-2">
+                    <div id="businessResults" class="glass-card rounded-2xl p-8 hidden">
+                        <h3 class="text-2xl font-bold mb-6">📊 Analysis Results</h3>
+                        <div id="businessResultsContent"></div>
+                    </div>
+                    
+                    <!-- Placeholder when no results -->
+                    <div id="businessPlaceholder" class="glass-card rounded-2xl p-8 text-center">
+                        <div class="floating text-6xl mb-4">📊</div>
+                        <h3 class="text-xl font-bold mb-2">Ready for Analysis</h3>
+                        <p class="opacity-80">Enter business details to see comprehensive valuation, market analysis, and opportunity scoring</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heatmap Tab -->
+        <div id="heatmapContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+                <!-- Heatmap Controls -->
+                <div class="xl:col-span-1">
+                    <div class="glass-card rounded-2xl p-8">
+                        <h3 class="text-2xl font-bold mb-6">🗺️ Market Heatmap</h3>
+                        <form id="heatmapForm" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Area Center</label>
+                                <input type="text" id="heatmapLocation" placeholder="Miami, FL" 
+                                       class="w-full p-4 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/70 focus:border-green-400 focus:outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Business Category</label>
+                                <select id="heatmapCategory" class="w-full p-4 rounded-xl bg-white/20 border border-white/30 text-white focus:border-green-400 focus:outline-none transition-colors">
+                                    <option value="All">🎯 All Categories</option>
+                                    <option value="HVAC">❄️ HVAC Services</option>
+                                    <option value="Restaurants">🍽️ Restaurants</option>
+                                    <option value="Dental">🦷 Dental Practices</option>
+                                    <option value="Auto Repair">🚗 Auto Repair</option>
+                                    <option value="Accounting">📊 Accounting Firms</option>
+                                    <option value="Landscaping">🌿 Landscaping</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Analysis Radius</label>
+                                <input type="range" id="radiusSlider" min="5" max="50" value="25" 
+                                       class="w-full" onchange="updateRadiusDisplay()">
+                                <div class="flex justify-between text-sm mt-1">
+                                    <span>5 miles</span>
+                                    <span id="radiusDisplay" class="font-bold text-yellow-400">25 miles</span>
+                                    <span>50 miles</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Heatmap Layer</label>
+                                <select id="heatmapLayer" class="w-full p-4 rounded-xl bg-white/20 border border-white/30 text-white focus:border-green-400 focus:outline-none transition-colors">
+                                    <option value="opportunity">🎯 Overall Opportunity</option>
+                                    <option value="business_density">🏢 Business Density</option>
+                                    <option value="tam_potential">💰 TAM Potential</option>
+                                    <option value="succession_risk">👴 Succession Risk</option>
+                                    <option value="digital_gaps">📱 Digital Gaps</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full btn-secondary py-4 px-6 rounded-xl text-lg font-bold">
+                                🗺️ Generate Heatmap
+                            </button>
+                        </form>
+                        
+                        <!-- Preset Locations -->
+                        <div class="mt-8 space-y-3">
+                            <h4 class="font-semibold text-sm opacity-90">Popular Markets:</h4>
+                            <button onclick="quickHeatmap('Dallas, TX', 'HVAC')" class="w-full text-left p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm">
+                                🔥 Dallas HVAC Market
+                            </button>
+                            <button onclick="quickHeatmap('Miami, FL', 'Restaurants')" class="w-full text-left p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm">
+                                🌴 Miami Restaurant Scene
+                            </button>
+                            <button onclick="quickHeatmap('Chicago, IL', 'Dental')" class="w-full text-left p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm">
+                                🏙️ Chicago Dental Market
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heatmap Display -->
+                <div class="xl:col-span-3">
+                    <div id="heatmapResults" class="glass-card rounded-2xl p-8 hidden">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-2xl font-bold">🗺️ Market Intelligence Heatmap</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="exportHeatmap('png')" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors text-sm">
+                                    📸 Export PNG
+                                </button>
+                                <button onclick="exportHeatmap('pdf')" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors text-sm">
+                                    📄 Export PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div id="heatmapContainer" class="heatmap-container mb-6"></div>
+                        <div id="heatmapSummary"></div>
+                    </div>
+                    
+                    <!-- Heatmap Placeholder -->
+                    <div id="heatmapPlaceholder" class="glass-card rounded-2xl p-8 text-center">
+                        <div class="floating text-6xl mb-4">🗺️</div>
+                        <h3 class="text-xl font-bold mb-2">Market Intelligence Ready</h3>
+                        <p class="opacity-80 max-w-2xl mx-auto">Generate instant heatmaps showing business density, TAM/TSM opportunities, succession risk, and digital gaps for any market area</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Analysis Tab -->
+        <div id="batchContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Batch Upload -->
+                <div class="glass-card rounded-2xl p-8">
+                    <h3 class="text-2xl font-bold mb-6">📊 Batch Processing</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Upload Business List (CSV)</label>
+                            <input type="file" id="csvFile" accept=".csv" 
+                                   class="w-full p-4 rounded-xl bg-white/20 border border-white/30 text-white file:bg-yellow-500 file:text-black file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Analysis Options</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="includeHeatmap" checked class="mr-3 w-4 h-4">
+                                    <span>Generate area heatmap</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="includeOpportunities" checked class="mr-3 w-4 h-4">
+                                    <span>Include opportunity scoring</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="includeTamTsm" checked class="mr-3 w-4 h-4">
+                                    <span>Calculate TAM/TSM</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button onclick="processBatchCSV()" class="w-full btn-primary py-4 px-6 rounded-xl text-lg font-bold">
+                            📊 Process Batch
+                        </button>
+                        <div class="text-center">
+                            <a href="/api/csv-template" download class="text-yellow-400 hover:text-yellow-300 underline text-sm">
+                                📥 Download CSV Template
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Results -->
+                <div class="glass-card rounded-2xl p-8">
+                    <h3 class="text-2xl font-bold mb-6">📈 Batch Results</h3>
+                    <div id="batchResults" class="hidden">
+                        <div id="batchSummary" class="grid grid-cols-2 gap-4 mb-6"></div>
+                        <div id="batchDetails"></div>
+                    </div>
+                    <div id="batchPlaceholder" class="text-center">
+                        <div class="floating text-6xl mb-4">📊</div>
+                        <h4 class="text-lg font-bold mb-2">Batch Processing Ready</h4>
+                        <p class="opacity-80">Upload a CSV file to analyze multiple businesses simultaneously with market intelligence</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Insights Tab -->
+        <div id="insightsContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Market Overview -->
+                <div class="glass-card rounded-2xl p-8">
+                    <h3 class="text-xl font-bold mb-4">📈 Market Overview</h3>
+                    <div id="marketOverview" class="space-y-4">
+                        <div class="metric-card rounded-xl p-4">
+                            <div class="text-2xl font-bold text-yellow-400">$2.3T</div>
+                            <div class="text-sm opacity-80">Total SMB Market</div>
+                        </div>
+                        <div class="metric-card rounded-xl p-4">
+                            <div class="text-2xl font-bold text-green-400">32.5M</div>
+                            <div class="text-sm opacity-80">SMBs in US</div>
+                        </div>
+                        <div class="metric-card rounded-xl p-4">
+                            <div class="text-2xl font-bold text-blue-400">78%</div>
+                            <div class="text-sm opacity-80">Fragmented Markets</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Opportunities -->
+                <div class="glass-card rounded-2xl p-8">
+                    <h3 class="text-xl font-bold mb-4">🎯 Top Opportunities</h3>
+                    <div id="topOpportunities" class="space-y-3">
+                        <div class="p-4 bg-white/10 rounded-lg">
+                            <div class="font-bold">HVAC Services</div>
+                            <div class="text-sm opacity-80">High succession risk + digital gaps</div>
+                            <div class="text-green-400 font-bold">85% opportunity score</div>
+                        </div>
+                        <div class="p-4 bg-white/10 rounded-lg">
+                            <div class="font-bold">Accounting Firms</div>
+                            <div class="text-sm opacity-80">Aging owners + tech modernization</div>
+                            <div class="text-green-400 font-bold">82% opportunity score</div>
+                        </div>
+                        <div class="p-4 bg-white/10 rounded-lg">
+                            <div class="font-bold">Auto Repair Shops</div>
+                            <div class="text-sm opacity-80">Fragmented market + low digital adoption</div>
+                            <div class="text-yellow-400 font-bold">76% opportunity score</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Trends -->
+                <div class="glass-card rounded-2xl p-8">
+                    <h3 class="text-xl font-bold mb-4">📊 Market Trends</h3>
+                    <div id="marketTrends" class="space-y-4">
+                        <div class="p-4 bg-green-500/20 rounded-lg border border-green-400/30">
+                            <div class="font-bold text-green-400">📈 Growing Sectors</div>
+                            <div class="text-sm mt-2">HVAC (+12%), Digital Marketing (+18%), Home Services (+8%)</div>
+                        </div>
+                        <div class="p-4 bg-yellow-500/20 rounded-lg border border-yellow-400/30">
+                            <div class="font-bold text-yellow-400">⚠️ Transition Risk</div>
+                            <div class="text-sm mt-2">58% of SMB owners approaching retirement age</div>
+                        </div>
+                        <div class="p-4 bg-blue-500/20 rounded-lg border border-blue-400/30">
+                            <div class="font-bold text-blue-400">💻 Digital Gap</div>
+                            <div class="text-sm mt-2">67% of SMBs lack modern digital presence</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden z-50">
+        <div class="glass-card rounded-2xl p-12 text-center max-w-md">
+            <div class="loading text-6xl mb-6">🤖</div>
+            <h3 class="text-2xl font-bold mb-4">AI Processing</h3>
+            <p id="loadingText" class="text-lg mb-4">Analyzing business data...</p>
+            <div class="w-full bg-white/20 rounded-full h-2">
+                <div id="progressBar" class="progress-bar h-2 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAnalysisData = null;
+        let currentHeatmapData = null;
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('[id$="Tab"]').forEach(tab => tab.classList.remove('tab-active'));
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            document.getElementById(tabName + 'Tab').classList.add('tab-active');
+        }
+
+        // Business analysis form
+        document.getElementById('businessForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const businessName = document.getElementById('businessName').value;
+            const location = document.getElementById('location').value;
+            const analysisType = document.getElementById('analysisType').value;
+            
+            await analyzeBusinessWithProgress(businessName, location, analysisType);
+        });
+
+        // Heatmap generation form
+        document.getElementById('heatmapForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const location = document.getElementById('heatmapLocation').value;
+            const category = document.getElementById('heatmapCategory').value;
+            const radius = parseInt(document.getElementById('radiusSlider').value);
+            
+            await generateHeatmapWithProgress(location, category, radius);
+        });
+
+        async function analyzeBusinessWithProgress(businessName, location, analysisType) {
+            if (!businessName || !location) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            showLoadingWithProgress('Fetching business data...', 0);
+            
+            try {
+                // Simulate progress steps
+                const steps = [
+                    { text: 'Fetching business data...', progress: 20 },
+                    { text: 'Running valuation analysis...', progress: 40 },
+                    { text: 'Calculating market sizing...', progress: 60 },
+                    { text: 'Analyzing opportunities...', progress: 80 },
+                    { text: 'Generating insights...', progress: 100 }
+                ];
+                
+                for (const step of steps) {
+                    updateLoadingProgress(step.text, step.progress);
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                }
+                
+                const response = await fetch('/api/unified/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        business_name: businessName,
+                        location: location,
+                        analysis_type: analysisType
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                currentAnalysisData = result;
+                displayBusinessResults(result);
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function generateHeatmapWithProgress(location, category, radius) {
+            if (!location) {
+                alert('Please enter a location');
+                return;
+            }
+            
+            showLoadingWithProgress('Initializing heatmap generation...', 0);
+            
+            try {
+                const steps = [
+                    { text: 'Geocoding location...', progress: 15 },
+                    { text: 'Fetching market data...', progress: 35 },
+                    { text: 'Analyzing business density...', progress: 55 },
+                    { text: 'Calculating opportunity scores...', progress: 75 },
+                    { text: 'Rendering heatmap...', progress: 100 }
+                ];
+                
+                for (const step of steps) {
+                    updateLoadingProgress(step.text, step.progress);
+                    await new Promise(resolve => setTimeout(resolve, 600));
+                }
+                
+                const response = await fetch('/api/unified/heatmap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        location: location,
+                        category: category,
+                        radius_miles: radius
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                currentHeatmapData = result;
+                displayHeatmapResults(result);
+                
+            } catch (error) {
+                console.error('Heatmap error:', error);
+                alert('Heatmap generation failed: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function displayBusinessResults(result) {
+            const container = document.getElementById('businessResultsContent');
+            const business = result.business || {};
+            const valuation = result.valuation || {};
+            const tamTsm = result.tam_tsm || {};
+            const opportunities = result.opportunities || {};
+            
+            container.innerHTML = `
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="metric-card rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-yellow-400">$${(valuation.valuation?.p50 || 0).toLocaleString()}</div>
+                        <div class="text-sm opacity-80">Valuation (P50)</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-green-400">$${((tamTsm.tam?.total_market_value || 0) / 1e6).toFixed(1)}M</div>
+                        <div class="text-sm opacity-80">TAM</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-blue-400">$${((tamTsm.tsm?.serviceable_market_value || 0) / 1e6).toFixed(1)}M</div>
+                        <div class="text-sm opacity-80">TSM</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-purple-400">${(opportunities.overall_opportunity_score || 0).toFixed(1)}</div>
+                        <div class="text-sm opacity-80">Opportunity Score</div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Analysis -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 flex items-center">
+                            💰 <span class="ml-2">Financial Analysis</span>
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-white/10 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-semibold">Revenue Range:</span>
+                                    <span class="text-yellow-400 font-bold">$${(valuation.revenue?.p10 || 0).toLocaleString()} - $${(valuation.revenue?.p90 || 0).toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-semibold">EBITDA Estimate:</span>
+                                    <span class="text-green-400 font-bold">$${(valuation.ebitda?.p50 || 0).toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">Confidence Level:</span>
+                                    <span class="text-blue-400 font-bold">${result.confidence_score || 0}%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-white/10 rounded-lg">
+                                <div class="font-semibold mb-2">Market Position:</div>
+                                <div class="text-sm space-y-1">
+                                    <div>• Market Share Potential: ${((tamTsm.market_opportunity?.market_share_potential || 0) * 100).toFixed(1)}%</div>
+                                    <div>• Fragmentation Score: ${(tamTsm.market_opportunity?.fragmentation_score || 0).toFixed(2)}</div>
+                                    <div>• Growth Potential: ${((opportunities.growth_potential || 0) * 100).toFixed(1)}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 flex items-center">
+                            🎯 <span class="ml-2">Opportunity Analysis</span>
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-white/10 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-semibold">Succession Risk:</span>
+                                    <span class="font-bold ${(opportunities.succession_risk?.succession_probability || 0) > 0.6 ? 'text-red-400' : (opportunities.succession_risk?.succession_probability || 0) > 0.3 ? 'text-yellow-400' : 'text-green-400'}">
+                                        ${opportunities.succession_risk?.risk_level || 'Unknown'}
+                                    </span>
+                                </div>
+                                <div class="text-sm opacity-80">
+                                    ${((opportunities.succession_risk?.succession_probability || 0) * 100).toFixed(1)}% probability
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-white/10 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-semibold">Digital Modernization:</span>
+                                    <span class="text-blue-400 font-bold">+${(opportunities.digital_presence?.modernization_upside_percent || 0).toFixed(1)}%</span>
+                                </div>
+                                <div class="text-sm opacity-80">Revenue upside potential</div>
+                            </div>
+                            
+                            <div class="p-4 bg-white/10 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-semibold">Market Position:</span>
+                                    <span class="text-purple-400 font-bold">${(opportunities.market_position?.market_position_score || 0).toFixed(1)}/100</span>
+                                </div>
+                                <div class="text-sm opacity-80">Competitive strength</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Items -->
+                ${opportunities.digital_presence?.recommendations?.length > 0 ? `
+                <div class="glass-card rounded-2xl p-8">
+                    <h4 class="text-xl font-bold mb-4 flex items-center">
+                        💡 <span class="ml-2">Actionable Recommendations</span>
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${opportunities.digital_presence.recommendations.map(rec => `
+                            <div class="p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg border border-green-400/30">
+                                <div class="text-sm">${rec}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            // Show results
+            document.getElementById('businessPlaceholder').classList.add('hidden');
+            document.getElementById('businessResults').classList.remove('hidden');
+        }
+
+        function displayHeatmapResults(result) {
+            // Display Plotly heatmap
+            if (result.plotly_json) {
+                const plotlyData = JSON.parse(result.plotly_json);
+                Plotly.newPlot('heatmapContainer', plotlyData.data, plotlyData.layout, {responsive: true});
+            }
+            
+            // Display summary
+            const summary = result.summary || {};
+            const summaryContainer = document.getElementById('heatmapSummary');
+            
+            summaryContainer.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="metric-card rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold text-yellow-400">${result.analysis_points || 0}</div>
+                        <div class="text-sm opacity-80">Analysis Points</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold text-green-400">${summary.high_opportunity_areas || 0}</div>
+                        <div class="text-sm opacity-80">High Opportunity</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-400">${(summary.avg_density || 0).toFixed(2)}</div>
+                        <div class="text-sm opacity-80">Avg Density</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-400">${summary.total_businesses || 0}</div>
+                        <div class="text-sm opacity-80">Total Businesses</div>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-xl p-6">
+                    <h5 class="font-bold mb-3 flex items-center">
+                        📍 <span class="ml-2">Analysis Details</span>
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <strong>Center:</strong> ${result.center_location}<br>
+                            <strong>Category:</strong> ${result.category}<br>
+                            <strong>Radius:</strong> ${result.radius_miles} miles
+                        </div>
+                        <div>
+                            <strong>Generated:</strong> ${new Date(result.timestamp).toLocaleString()}<br>
+                            <strong>Coordinates:</strong> ${result.center_coordinates?.lat?.toFixed(4)}, ${result.center_coordinates?.lng?.toFixed(4)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Show results
+            document.getElementById('heatmapPlaceholder').classList.add('hidden');
+            document.getElementById('heatmapResults').classList.remove('hidden');
+        }
+
+        // Quick analysis functions
+        function quickAnalysis(businessName, location) {
+            document.getElementById('businessName').value = businessName;
+            document.getElementById('location').value = location;
+            document.getElementById('businessForm').dispatchEvent(new Event('submit'));
+        }
+
+        function quickHeatmap(location, category) {
+            document.getElementById('heatmapLocation').value = location;
+            document.getElementById('heatmapCategory').value = category;
+            showTab('heatmap');
+            setTimeout(() => {
+                document.getElementById('heatmapForm').dispatchEvent(new Event('submit'));
+            }, 500);
+        }
+
+        // Batch processing
+        async function processBatchCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a CSV file');
+                return;
+            }
+            
+            showLoadingWithProgress('Reading CSV file...', 0);
+            
+            try {
+                const csvContent = await file.text();
+                const lines = csvContent.split('\n');
+                const businesses = parseCSVToBusinesses(csvContent);
+                
+                updateLoadingProgress(`Processing ${businesses.length} businesses...`, 30);
+                
+                const response = await fetch('/api/unified/batch-analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        businesses: businesses,
+                        generate_heatmap: document.getElementById('includeHeatmap').checked
+                    })
+                });
+                
+                updateLoadingProgress('Finalizing results...', 90);
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                displayBatchResults(result);
+                
+            } catch (error) {
+                console.error('Batch processing error:', error);
+                alert('Batch processing failed: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function parseCSVToBusinesses(csvContent) {
+            const lines = csvContent.trim().split('\n');
+            if (lines.length < 2) return [];
+            
+            const headers = lines[0].split(',').map(h => h.trim());
+            const businesses = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.trim());
+                if (values.length >= 2) {
+                    businesses.push({
+                        business_name: values[0] || `Business ${i}`,
+                        location: values[1] || 'Unknown',
+                        category: values[2] || 'Unknown'
+                    });
+                }
+            }
+            
+            return businesses;
+        }
+
+        function displayBatchResults(result) {
+            const summaryContainer = document.getElementById('batchSummary');
+            const detailsContainer = document.getElementById('batchDetails');
+            const summary = result.summary || {};
+            
+            // Summary metrics
+            summaryContainer.innerHTML = `
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-yellow-400">${summary.total_analyzed || 0}</div>
+                    <div class="text-sm opacity-80">Businesses Analyzed</div>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-green-400">$${((summary.total_tam || 0) / 1e6).toFixed(1)}M</div>
+                    <div class="text-sm opacity-80">Total TAM</div>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-400">$${((summary.total_tsm || 0) / 1e6).toFixed(1)}M</div>
+                    <div class="text-sm opacity-80">Total TSM</div>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-400">${summary.high_opportunity_count || 0}</div>
+                    <div class="text-sm opacity-80">High Opportunity</div>
+                </div>
+            `;
+            
+            // Show results
+            document.getElementById('batchPlaceholder').classList.add('hidden');
+            document.getElementById('batchResults').classList.remove('hidden');
+        }
+
+        // Loading functions
+        function showLoadingWithProgress(text, progress) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function updateLoadingProgress(text, progress) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        // Utility functions
+        function updateRadiusDisplay() {
+            const radius = document.getElementById('radiusSlider').value;
+            document.getElementById('radiusDisplay').textContent = radius + ' miles';
+        }
+
+        function exportHeatmap(format) {
+            if (!currentHeatmapData) {
+                alert('No heatmap data to export');
+                return;
+            }
+            
+            // Export functionality (placeholder)
+            alert(`Exporting heatmap as ${format.toUpperCase()}... (Feature coming soon)`);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRadiusDisplay();
+            
+            // Check if server is running
+            fetch('/api/unified/health')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('✅ Unified Okapiq System is running:', data);
+                })
+                .catch(error => {
+                    console.warn('⚠️ Backend not available:', error);
+                    // Could show a warning banner here
+                });
+        });
+    </script>
+</body>
+</html>

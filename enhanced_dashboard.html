@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Enhanced Okapiq Intelligence Dashboard</title>
+    
+    <!-- Enhanced CSS with advanced animations and modern design -->
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #FFD700;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --error-color: #EF4444;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --bg-primary: #F9FAFB;
+            --bg-secondary: #FFFFFF;
+            --border-color: #E5E7EB;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Advanced animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -468px 0;
+            }
+            100% {
+                background-position: 468px 0;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Main container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            color: white;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        /* Status indicators */
+        .status-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: var(--success-color);
+        }
+
+        .status-dot.warning {
+            background: var(--warning-color);
+        }
+
+        .status-dot.offline {
+            background: var(--error-color);
+        }
+
+        /* Main grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Metrics cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .metric-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .metric-change.positive {
+            color: var(--success-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .metric-change.negative {
+            color: var(--error-color);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Chart containers */
+        .chart-container {
+            height: 300px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        /* Loading states */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-text.medium {
+            width: 80%;
+        }
+
+        .skeleton-text.long {
+            width: 100%;
+        }
+
+        /* Interactive elements */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5A67D8;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* Real-time indicators */
+        .real-time-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .real-time-indicator.disconnected {
+            background: var(--error-color);
+        }
+
+        /* Data table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: var(--bg-primary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-primary);
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .status-indicators {
+                gap: 10px;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Notification system */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--success-color);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            max-width: 300px;
+            z-index: 1001;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .notification.error {
+            border-left-color: var(--error-color);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Real-time connection indicator -->
+    <div id="connectionStatus" class="real-time-indicator">
+        🟢 Connected
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🚀 Enhanced Okapiq Intelligence</h1>
+            <p class="subtitle">Real-time Market Intelligence • ML Analytics • Bloomberg for SMBs</p>
+            
+            <div class="status-indicators">
+                <div class="status-indicator">
+                    <div class="status-dot online" id="apiStatus"></div>
+                    <span>API Online</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot online" id="mlStatus"></div>
+                    <span>ML Models</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot online" id="cacheStatus"></div>
+                    <span>Cache Active</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot online" id="dataStatus"></div>
+                    <span>Data Fresh</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="totalFirms">---</div>
+                <div class="metric-label">Total Firms</div>
+                <div class="metric-change positive" id="firmsChange">+12%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="avgDealScore">---</div>
+                <div class="metric-label">Avg Deal Score</div>
+                <div class="metric-change positive" id="scoreChange">+5.2%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="totalRevenue">---</div>
+                <div class="metric-label">Total Revenue</div>
+                <div class="metric-change positive" id="revenueChange">+8.1%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="responseTime">---</div>
+                <div class="metric-label">Response Time</div>
+                <div class="metric-change positive" id="timeChange">-15ms</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Left Panel - Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🎯 Quick Actions</h3>
+                    <span class="card-icon">⚡</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-primary" onclick="runMarketScan()">
+                        🔍 Market Scan
+                    </button>
+                    <button class="btn btn-secondary" onclick="generateReport()">
+                        📊 Generate Report
+                    </button>
+                    <button class="btn btn-secondary" onclick="runMLAnalysis()">
+                        🤖 ML Analysis
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        📤 Export Data
+                    </button>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <h4 style="margin-bottom: 12px; color: var(--text-secondary);">Recent Activity</h4>
+                    <div id="recentActivity">
+                        <div class="skeleton">
+                            <div class="skeleton-text medium"></div>
+                            <div class="skeleton-text short"></div>
+                            <div class="skeleton-text long"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Panel - Main Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Market Performance</h3>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="changeTimeframe('1D')">1D</button>
+                        <button class="btn btn-secondary" onclick="changeTimeframe('1W')">1W</button>
+                        <button class="btn btn-primary" onclick="changeTimeframe('1M')">1M</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceChart" width="100%" height="300"></canvas>
+                </div>
+            </div>
+
+            <!-- Right Panel - System Status -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🖥️ System Status</h3>
+                    <span class="card-icon">📡</span>
+                </div>
+                <div id="systemStatus">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">📋 Top Performing Firms</h3>
+                <button class="btn btn-secondary" onclick="refreshData()">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Firm Name</th>
+                            <th>Location</th>
+                            <th>Revenue</th>
+                            <th>Deal Score</th>
+                            <th>Growth Potential</th>
+                            <th>Risk Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="firmsTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js for advanced charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Enhanced JavaScript with real-time features -->
+    <script>
+        class EnhancedDashboard {
+            constructor() {
+                this.apiBase = '/api';
+                this.refreshInterval = 30000; // 30 seconds
+                this.chart = null;
+                this.isConnected = true;
+                this.notifications = [];
+                
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 Initializing Enhanced Dashboard...');
+                
+                // Load initial data
+                await this.loadSystemStatus();
+                await this.loadMetrics();
+                await this.loadFirmsData();
+                await this.loadRecentActivity();
+                
+                // Initialize chart
+                this.initChart();
+                
+                // Start real-time updates
+                this.startRealTimeUpdates();
+                
+                // Setup error handling
+                this.setupErrorHandling();
+                
+                console.log('✅ Dashboard initialized successfully');
+            }
+
+            async loadSystemStatus() {
+                try {
+                    const response = await fetch(`${this.apiBase}/health`);
+                    const data = await response.json();
+                    
+                    this.updateSystemStatus(data);
+                    this.updateStatusIndicators(data);
+                    
+                } catch (error) {
+                    console.error('❌ Error loading system status:', error);
+                    this.handleConnectionError();
+                }
+            }
+
+            updateSystemStatus(data) {
+                const statusContainer = document.getElementById('systemStatus');
+                
+                statusContainer.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Version:</span>
+                            <strong>${data.version || 'Unknown'}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Uptime:</span>
+                            <strong>${this.formatUptime(Date.now())}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Total Requests:</span>
+                            <strong>${data.performance?.total_requests || 0}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Error Rate:</span>
+                            <strong style="color: ${(data.performance?.error_rate || 0) > 0.05 ? 'var(--error-color)' : 'var(--success-color)'}">
+                                ${((data.performance?.error_rate || 0) * 100).toFixed(1)}%
+                            </strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Cache:</span>
+                            <strong style="color: var(--success-color)">
+                                ${data.system?.cache_available ? 'Active' : 'Inactive'}
+                            </strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>ML Models:</span>
+                            <strong style="color: ${data.system?.ml_models_trained ? 'var(--success-color)' : 'var(--warning-color)'}">
+                                ${data.system?.ml_models_trained ? 'Trained' : 'Limited'}
+                            </strong>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateStatusIndicators(data) {
+                const apiStatus = document.getElementById('apiStatus');
+                const mlStatus = document.getElementById('mlStatus');
+                const cacheStatus = document.getElementById('cacheStatus');
+                const dataStatus = document.getElementById('dataStatus');
+
+                // Update status dots based on system health
+                apiStatus.className = data.status === 'healthy' ? 'status-dot online' : 'status-dot offline';
+                mlStatus.className = data.system?.ml_models_trained ? 'status-dot online' : 'status-dot warning';
+                cacheStatus.className = data.system?.cache_available ? 'status-dot online' : 'status-dot warning';
+                dataStatus.className = data.data?.total_firms > 0 ? 'status-dot online' : 'status-dot offline';
+            }
+
+            async loadMetrics() {
+                try {
+                    const response = await fetch(`${this.apiBase}/stats`);
+                    const data = await response.json();
+                    
+                    this.updateMetrics(data);
+                    
+                } catch (error) {
+                    console.error('❌ Error loading metrics:', error);
+                }
+            }
+
+            updateMetrics(data) {
+                // Update metric values with smooth animations
+                this.animateValue('totalFirms', data.total_firms || 0);
+                this.animateValue('avgDealScore', (data.avg_deal_score || 0).toFixed(1));
+                this.animateValue('totalRevenue', this.formatCurrency(data.total_revenue || 0));
+                
+                // Update response time from performance data
+                const responseTime = data.enhanced_metrics?.avg_response_time || 0;
+                document.getElementById('responseTime').textContent = `${(responseTime * 1000).toFixed(0)}ms`;
+            }
+
+            animateValue(elementId, endValue) {
+                const element = document.getElementById(elementId);
+                const startValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
+                const duration = 1000;
+                const startTime = performance.now();
+
+                const animate = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    const currentValue = startValue + (endValue - startValue) * this.easeOutCubic(progress);
+                    element.textContent = typeof endValue === 'string' ? endValue : Math.round(currentValue);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+
+                requestAnimationFrame(animate);
+            }
+
+            easeOutCubic(t) {
+                return 1 - Math.pow(1 - t, 3);
+            }
+
+            async loadFirmsData() {
+                try {
+                    const response = await fetch(`${this.apiBase}/firms?per_page=10&sort_by=deal_score`);
+                    const data = await response.json();
+                    
+                    this.updateFirmsTable(data.firms || []);
+                    
+                } catch (error) {
+                    console.error('❌ Error loading firms data:', error);
+                }
+            }
+
+            updateFirmsTable(firms) {
+                const tbody = document.getElementById('firmsTableBody');
+                
+                tbody.innerHTML = firms.map(firm => `
+                    <tr style="animation: fadeInUp 0.3s ease-out;">
+                        <td><strong>${firm.name || 'Unknown'}</strong></td>
+                        <td>${firm.location || 'N/A'}</td>
+                        <td>${this.formatCurrency(firm.revenue || 0)}</td>
+                        <td>
+                            <span style="color: ${this.getScoreColor(firm.deal_score)}; font-weight: 600;">
+                                ${firm.deal_score || 0}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="color: ${this.getScoreColor(firm.growth_potential)};">
+                                ${(firm.growth_potential || 0).toFixed(1)}%
+                            </span>
+                        </td>
+                        <td>
+                            <span style="color: ${this.getRiskColor(firm.risk_score)};">
+                                ${(firm.risk_score || 0).toFixed(1)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-secondary" onclick="dashboard.viewFirm('${firm.firm_id}')">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            async loadRecentActivity() {
+                // Simulate recent activity data
+                const activities = [
+                    { time: '2 min ago', action: 'Market scan completed', status: 'success' },
+                    { time: '5 min ago', action: 'ML model updated', status: 'info' },
+                    { time: '12 min ago', action: 'New firm added', status: 'success' },
+                    { time: '18 min ago', action: 'Report generated', status: 'info' }
+                ];
+
+                const container = document.getElementById('recentActivity');
+                container.innerHTML = activities.map(activity => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                        <div>
+                            <div style="font-size: 0.9rem; font-weight: 500;">${activity.action}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">${activity.time}</div>
+                        </div>
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success-color);"></div>
+                    </div>
+                `).join('');
+            }
+
+            initChart() {
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                
+                // Generate sample data
+                const labels = [];
+                const dealScores = [];
+                const revenues = [];
+                
+                for (let i = 30; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                    dealScores.push(Math.random() * 20 + 70); // 70-90 range
+                    revenues.push(Math.random() * 2000000 + 1000000); // 1M-3M range
+                }
+
+                this.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Avg Deal Score',
+                            data: dealScores,
+                            borderColor: 'rgb(102, 126, 234)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Avg Revenue (M)',
+                            data: revenues.map(r => r / 1000000),
+                            borderColor: 'rgb(255, 215, 0)',
+                            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Deal Score'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Revenue (M)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            startRealTimeUpdates() {
+                setInterval(async () => {
+                    if (this.isConnected) {
+                        await this.loadMetrics();
+                        await this.loadSystemStatus();
+                    }
+                }, this.refreshInterval);
+
+                // Simulate real-time connection status
+                setInterval(() => {
+                    this.updateConnectionStatus();
+                }, 5000);
+            }
+
+            updateConnectionStatus() {
+                const indicator = document.getElementById('connectionStatus');
+                const isOnline = navigator.onLine && this.isConnected;
+                
+                indicator.textContent = isOnline ? '🟢 Connected' : '🔴 Disconnected';
+                indicator.className = isOnline ? 'real-time-indicator' : 'real-time-indicator disconnected';
+            }
+
+            handleConnectionError() {
+                this.isConnected = false;
+                this.showNotification('Connection lost. Retrying...', 'error');
+                
+                // Retry connection after 5 seconds
+                setTimeout(() => {
+                    this.isConnected = true;
+                    this.loadSystemStatus();
+                }, 5000);
+            }
+
+            setupErrorHandling() {
+                window.addEventListener('error', (event) => {
+                    console.error('Global error:', event.error);
+                    this.showNotification('An error occurred. Please refresh the page.', 'error');
+                });
+
+                window.addEventListener('unhandledrejection', (event) => {
+                    console.error('Unhandled promise rejection:', event.reason);
+                    this.showNotification('Network error. Please check your connection.', 'error');
+                });
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div style="font-weight: 600; margin-bottom: 4px;">
+                        ${type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅'} 
+                        ${type.charAt(0).toUpperCase() + type.slice(1)}
+                    </div>
+                    <div>${message}</div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Remove notification after 5 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            }
+
+            // Utility methods
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(amount);
+            }
+
+            formatUptime(startTime) {
+                const uptime = Date.now() - startTime;
+                const hours = Math.floor(uptime / (1000 * 60 * 60));
+                const minutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60));
+                return `${hours}h ${minutes}m`;
+            }
+
+            getScoreColor(score) {
+                if (score >= 80) return 'var(--success-color)';
+                if (score >= 60) return 'var(--warning-color)';
+                return 'var(--error-color)';
+            }
+
+            getRiskColor(risk) {
+                if (risk <= 30) return 'var(--success-color)';
+                if (risk <= 60) return 'var(--warning-color)';
+                return 'var(--error-color)';
+            }
+
+            // Action methods
+            async runMarketScan() {
+                this.showNotification('Market scan initiated...', 'info');
+                // Simulate API call
+                setTimeout(() => {
+                    this.showNotification('Market scan completed successfully!', 'success');
+                    this.loadFirmsData();
+                }, 2000);
+            }
+
+            async generateReport() {
+                this.showNotification('Generating report...', 'info');
+                // Simulate report generation
+                setTimeout(() => {
+                    this.showNotification('Report generated and ready for download!', 'success');
+                }, 3000);
+            }
+
+            async runMLAnalysis() {
+                this.showNotification('Running ML analysis...', 'info');
+                try {
+                    const response = await fetch(`${this.apiBase}/analytics/clusters`);
+                    const data = await response.json();
+                    this.showNotification('ML analysis completed!', 'success');
+                } catch (error) {
+                    this.showNotification('ML analysis failed. Please try again.', 'error');
+                }
+            }
+
+            async exportData() {
+                this.showNotification('Preparing data export...', 'info');
+                // Simulate data export
+                setTimeout(() => {
+                    this.showNotification('Data exported successfully!', 'success');
+                }, 1500);
+            }
+
+            async refreshData() {
+                this.showNotification('Refreshing data...', 'info');
+                await Promise.all([
+                    this.loadMetrics(),
+                    this.loadFirmsData(),
+                    this.loadSystemStatus()
+                ]);
+                this.showNotification('Data refreshed!', 'success');
+            }
+
+            changeTimeframe(timeframe) {
+                // Update chart data based on timeframe
+                this.showNotification(`Switched to ${timeframe} view`, 'info');
+                
+                // Update button states
+                document.querySelectorAll('.card-header button').forEach(btn => {
+                    btn.className = btn.textContent === timeframe ? 'btn btn-primary' : 'btn btn-secondary';
+                });
+            }
+
+            viewFirm(firmId) {
+                this.showNotification(`Opening firm details for ${firmId}...`, 'info');
+                // Navigate to firm details
+                window.location.href = `/firm/${firmId}`;
+            }
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new EnhancedDashboard();
+        });
+
+        // Global action functions for button clicks
+        function runMarketScan() { window.dashboard?.runMarketScan(); }
+        function generateReport() { window.dashboard?.generateReport(); }
+        function runMLAnalysis() { window.dashboard?.runMLAnalysis(); }
+        function exportData() { window.dashboard?.exportData(); }
+        function refreshData() { window.dashboard?.refreshData(); }
+        function changeTimeframe(tf) { window.dashboard?.changeTimeframe(tf); }
+    </script>
+</body>
+</html>

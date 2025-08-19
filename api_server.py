@@ -1597,10 +1597,640 @@ def prepare_crm_data(businesses: List[Dict]) -> Dict:
 import random
 import numpy as np
 
+# Import the SMB Valuation Engine
+try:
+    from smb_valuation_engine import SMBValuationEngine, BusinessSignals
+    VALUATION_ENGINE_AVAILABLE = True
+    valuation_engine = SMBValuationEngine(API_CONFIG)
+except ImportError:
+    VALUATION_ENGINE_AVAILABLE = False
+    print("⚠️ SMB Valuation Engine not available - install additional dependencies")
+
+@app.route('/api/valuate', methods=['POST'])
+def valuate_business():
+    """🏦 Advanced business valuation endpoint"""
+    if not VALUATION_ENGINE_AVAILABLE:
+        return jsonify({"error": "Valuation engine not available"}), 503
+    
+    try:
+        data = request.get_json()
+        
+        # Create BusinessSignals from input
+        signals = BusinessSignals(
+            business_id=data.get("business_id", "unknown"),
+            name=data.get("name", "Unknown Business"),
+            category=data.get("category", "HVAC"),
+            geo=data.get("geo", "Unknown Location"),
+            R_total=data.get("R_total", 0),
+            R_12=data.get("R_12", 0),
+            stars=data.get("stars", 3.5),
+            rating_volatility=data.get("rating_volatility", 0.3),
+            trends_now=data.get("trends_now", 1.0),
+            trends_avg=data.get("trends_avg", 1.0),
+            pop_times_index=data.get("pop_times_index", 1.0),
+            competitors_density=data.get("competitors_density", 0.5),
+            median_income=data.get("median_income", 50000),
+            population=data.get("population", 10000),
+            years_in_business=data.get("years_in_business", 5),
+            website_quality=data.get("website_quality", 0.7),
+            social_presence=data.get("social_presence", 0.5)
+        )
+        
+        # Parse ads data
+        ads_data = data.get("ads_data", [])
+        if isinstance(ads_data, list):
+            signals.ads_data = ads_data
+        
+        # Run valuation
+        import asyncio
+        result = asyncio.run(valuation_engine.valuate_business(signals))
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"Valuation error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/valuate/batch', methods=['POST'])
+def batch_valuate():
+    """📊 Batch business valuation from CSV"""
+    if not VALUATION_ENGINE_AVAILABLE:
+        return jsonify({"error": "Valuation engine not available"}), 503
+    
+    try:
+        data = request.get_json()
+        csv_content = data.get("csv")
+        default_category = data.get("default_category", "HVAC")
+        
+        if not csv_content:
+            return jsonify({"error": "CSV content required"}), 400
+        
+        # Run batch valuation
+        import asyncio
+        result = asyncio.run(valuation_engine.batch_valuate_csv(csv_content, default_category))
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"Batch valuation error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/zip-opportunities', methods=['POST'])
+def zip_opportunities():
+    """🏆 Generate ZIP code opportunity report"""
+    if not VALUATION_ENGINE_AVAILABLE:
+        return jsonify({"error": "Valuation engine not available"}), 503
+    
+    try:
+        data = request.get_json()
+        zip_codes = data.get("zip_codes", [])
+        
+        if not zip_codes:
+            return jsonify({"error": "ZIP codes required"}), 400
+        
+        # Generate opportunity report
+        import asyncio
+        result = asyncio.run(valuation_engine.generate_zip_opportunity_report(zip_codes))
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"ZIP opportunities error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/priors')
+def get_valuation_priors():
+    """📋 Get business category priors for valuation"""
+    if not VALUATION_ENGINE_AVAILABLE:
+        return jsonify({"error": "Valuation engine not available"}), 503
+    
+    try:
+        from smb_valuation_engine import CATEGORY_PRIORS
+        return jsonify({
+            category: {
+                "category": prior.category,
+                "review_propensity": f"{prior.review_propensity_alpha/(prior.review_propensity_alpha + prior.review_propensity_beta):.1%}",
+                "operating_margin": f"{prior.operating_margin:.1%}",
+                "multiple_range": f"{prior.multiple_mean-prior.multiple_std:.1f}x - {prior.multiple_mean+prior.multiple_std:.1f}x",
+                "avg_ticket_size": sum(job["price"] * job["weight"] for job in prior.ats_mixture)
+            }
+            for category, prior in CATEGORY_PRIORS.items()
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/valuation')
+def valuation_dashboard():
+    """🏦 Business Valuation Dashboard"""
+    return render_template_string("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏦 SMB Valuation Engine - Okapiq</title>
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            padding: 40px 0;
+        }
+        .header h1 { 
+            font-size: 3em; 
+            margin: 0; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .card { 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px; 
+            padding: 25px; 
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 600;
+        }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        .btn { 
+            background: #FFD700; 
+            color: #333; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { 
+            background: #FFC107; 
+            transform: translateY(-2px);
+        }
+        .results { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            display: none;
+        }
+        .metric { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 10px;
+        }
+        .metric-value { 
+            font-weight: 600; 
+            color: #FFD700;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px;
+        }
+        @media (max-width: 768px) { 
+            .grid { grid-template-columns: 1fr; }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 SMB Valuation Engine</h1>
+            <p>Advanced Business Valuation with Census Data & AI</p>
+            <p><strong>Monte Carlo • Bayesian Modeling • Automated Assessment</strong></p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>📊 Single Business Valuation</h3>
+                <form id="valuationForm">
+                    <div class="form-group">
+                        <label>Business Name:</label>
+                        <input type="text" id="businessName" placeholder="Joe's HVAC Services" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <select id="category">
+                            <option value="HVAC">HVAC</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Dental">Dental</option>
+                            <option value="Auto Repair">Auto Repair</option>
+                            <option value="Landscaping">Landscaping</option>
+                            <option value="Salon">Salon</option>
+                            <option value="Accounting">Accounting</option>
+                            <option value="Plumbing">Plumbing</option>
+                            <option value="Electrical">Electrical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location:</label>
+                        <input type="text" id="location" placeholder="Dallas, TX" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Reviews:</label>
+                        <input type="number" id="totalReviews" placeholder="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Reviews (Last 12 Months):</label>
+                        <input type="number" id="reviews12" placeholder="25" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Star Rating:</label>
+                        <input type="number" id="stars" step="0.1" min="1" max="5" placeholder="4.3" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Years in Business:</label>
+                        <input type="number" id="yearsInBusiness" placeholder="8" required>
+                    </div>
+                    <button type="submit" class="btn">🚀 Value Business</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>📈 ZIP Code Opportunities</h3>
+                <form id="zipForm">
+                    <div class="form-group">
+                        <label>ZIP Codes (comma-separated):</label>
+                        <input type="text" id="zipCodes" placeholder="75204,33139,60607,90017,77002" required>
+                    </div>
+                    <button type="submit" class="btn">🏆 Analyze ZIPs</button>
+                </form>
+
+                <div style="margin-top: 20px;">
+                    <h4>📋 Batch Upload</h4>
+                    <input type="file" id="csvFile" accept=".csv" style="margin-bottom: 10px;">
+                    <button onclick="uploadCSV()" class="btn">📊 Batch Valuate</button>
+                    <br><br>
+                    <a href="/api/csv-template" download style="color: #FFD700; text-decoration: underline;">📥 Download CSV Template</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="results">
+            <h3>📊 Valuation Results</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Single business valuation
+        document.getElementById('valuationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                business_id: Math.random().toString(36).substr(2, 9),
+                name: document.getElementById('businessName').value,
+                category: document.getElementById('category').value,
+                geo: document.getElementById('location').value,
+                R_total: parseInt(document.getElementById('totalReviews').value),
+                R_12: parseInt(document.getElementById('reviews12').value),
+                stars: parseFloat(document.getElementById('stars').value),
+                years_in_business: parseInt(document.getElementById('yearsInBusiness').value),
+                ads_data: [
+                    {vol: 5000, cpc: 8.0, competition: 0.6}  // Default ads data
+                ]
+            };
+
+            try {
+                showLoading();
+                const response = await fetch('/api/valuate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                displayValuationResults(result);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('resultsContent').innerHTML = `<div style="color: #ff6b6b;">Error: ${error.message}</div>`;
+                document.getElementById('results').style.display = 'block';
+            }
+        });
+
+        // ZIP opportunities
+        document.getElementById('zipForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const zipCodes = document.getElementById('zipCodes').value.split(',').map(z => z.trim());
+
+            try {
+                showLoading();
+                const response = await fetch('/api/zip-opportunities', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ zip_codes: zipCodes })
+                });
+
+                const result = await response.json();
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                displayZipResults(result);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('resultsContent').innerHTML = `<div style="color: #ff6b6b;">Error: ${error.message}</div>`;
+                document.getElementById('results').style.display = 'block';
+            }
+        });
+
+        function showLoading() {
+            const results = document.getElementById('results');
+            const content = document.getElementById('resultsContent');
+            content.innerHTML = '<div style="text-align: center;"><div style="display: inline-block; width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #FFD700; border-radius: 50%; animation: spin 1s linear infinite;"></div><p>🤖 AI Processing Valuation...</p></div>';
+            results.style.display = 'block';
+        }
+
+        function displayValuationResults(result) {
+            const content = document.getElementById('resultsContent');
+            const val = result.valuation?.valuation || {};
+            const aoa = result.aoa || {};
+            
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div>
+                        <h4>💰 Valuation Range</h4>
+                        <div class="metric">
+                            <span>P50 (Median):</span>
+                            <span class="metric-value">$${(val.p50 || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="metric">
+                            <span>P10 - P90:</span>
+                            <span class="metric-value">$${(val.p10 || 0).toLocaleString()} - $${(val.p90 || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="metric">
+                            <span>Revenue (P50):</span>
+                            <span class="metric-value">$${(result.valuation?.revenue?.p50 || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="metric">
+                            <span>EBITDA (P50):</span>
+                            <span class="metric-value">$${(result.valuation?.ebitda?.p50 || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="metric">
+                            <span>Confidence:</span>
+                            <span class="metric-value">${(result.confidence_score || 0).toFixed(1)}%</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>📊 AOA Score</h4>
+                        <div class="metric">
+                            <span>Overall Grade:</span>
+                            <span class="metric-value">${aoa.grade || 'N/A'} (${(aoa.total_score || 0).toFixed(1)}/100)</span>
+                        </div>
+                        <div class="metric">
+                            <span>Service Quality:</span>
+                            <span class="metric-value">${(aoa.pillars?.service_quality || 0).toFixed(1)}/25</span>
+                        </div>
+                        <div class="metric">
+                            <span>Demand Momentum:</span>
+                            <span class="metric-value">${(aoa.pillars?.demand_momentum || 0).toFixed(1)}/15</span>
+                        </div>
+                        <div class="metric">
+                            <span>Unit Economics:</span>
+                            <span class="metric-value">${(aoa.pillars?.unit_economics || 0).toFixed(1)}/20</span>
+                        </div>
+                        <div class="metric">
+                            <span>Transition Risk:</span>
+                            <span class="metric-value" style="color: ${(aoa.owner_transition_risk?.risk_score || 0) > 60 ? '#ff6b6b' : (aoa.owner_transition_risk?.risk_score || 0) > 30 ? '#ffa726' : '#4caf50'}">${aoa.owner_transition_risk?.risk_level || 'Unknown'} (${(aoa.owner_transition_risk?.risk_score || 0).toFixed(1)}%)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4>💡 Key Insights</h4>
+                    <ul>
+                        ${(aoa.insights || []).map(insight => `<li>${insight}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                ${(aoa.risk_flags || []).length > 0 ? `
+                <div style="margin-top: 20px;">
+                    <h4>🚩 Risk Flags</h4>
+                    <ul>
+                        ${aoa.risk_flags.map(flag => `<li>${flag}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                <div style="margin-top: 20px;">
+                    <h4>📈 TMP Analysis</h4>
+                    <div class="metric">
+                        <span>Total Market Value:</span>
+                        <span class="metric-value">$${((result.tmp?.total_market_value || 0) / 1000000).toFixed(1)}M</span>
+                    </div>
+                    <div class="metric">
+                        <span>Market Attractiveness:</span>
+                        <span class="metric-value">${(result.tmp?.market_attractiveness || 0).toFixed(1)}/100</span>
+                    </div>
+                    <div class="metric">
+                        <span>Growth Potential:</span>
+                        <span class="metric-value">${(result.tmp?.growth_potential?.total_growth || 0).toFixed(1)}%</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4>💰 Ad Spend Recommendations</h4>
+                    <ul>
+                        ${(result.ad_spend_plan?.recommendations || []).map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        function displayZipResults(result) {
+            const content = document.getElementById('resultsContent');
+            const topZips = result.top_zip_codes || [];
+            
+            content.innerHTML = `
+                <h4>🏆 Top ZIP Code Opportunities</h4>
+                <p><em>Ranked by owner transition risk + commercial upside</em></p>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.1);">
+                                <th style="padding: 12px; text-align: left;">ZIP</th>
+                                <th style="padding: 12px; text-align: left;">City</th>
+                                <th style="padding: 12px; text-align: left;">Key Signals</th>
+                                <th style="padding: 12px; text-align: left;">Top 3 Business Targets</th>
+                                <th style="padding: 12px; text-align: left;">Avg. Discount Potential</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${topZips.map(zip => `
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <td style="padding: 12px; font-weight: 600; color: #FFD700;">${zip.zip_code}</td>
+                                    <td style="padding: 12px; font-weight: 500;">${zip.city}</td>
+                                    <td style="padding: 12px; font-size: 0.9em;">
+                                        ${(zip.key_signals || []).map(signal => `• ${signal}`).join('<br>')}
+                                    </td>
+                                    <td style="padding: 12px; font-size: 0.9em;">
+                                        ${(zip.top_business_targets || []).join(', ')}
+                                    </td>
+                                    <td style="padding: 12px; font-weight: 600; color: #4caf50; font-size: 1.1em;">
+                                        ${zip.avg_discount_potential}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <h4>📊 Analysis Summary</h4>
+                    <p><strong>Total ZIPs Analyzed:</strong> ${result.total_zips_analyzed || 0}</p>
+                    <p><strong>Analysis Time:</strong> ${new Date(result.analysis_timestamp).toLocaleString()}</p>
+                </div>
+            `;
+        }
+
+        async function uploadCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a CSV file');
+                return;
+            }
+
+            try {
+                const csvContent = await file.text();
+                showLoading();
+                
+                const response = await fetch('/api/valuate/batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ csv: csvContent, default_category: 'HVAC' })
+                });
+
+                const result = await response.json();
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                displayBatchResults(result);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('resultsContent').innerHTML = `<div style="color: #ff6b6b;">Error: ${error.message}</div>`;
+                document.getElementById('results').style.display = 'block';
+            }
+        }
+
+        function displayBatchResults(result) {
+            const content = document.getElementById('resultsContent');
+            const summary = result.summary || {};
+            
+            content.innerHTML = `
+                <h4>📊 Batch Valuation Results</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="text-align: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 2em; font-weight: 600; color: #FFD700;">${result.total_processed || 0}</div>
+                        <div>Businesses Processed</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 2em; font-weight: 600; color: #FFD700;">$${((summary.valuation_stats?.total_market_value || 0) / 1000000).toFixed(1)}M</div>
+                        <div>Total Market Value</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 2em; font-weight: 600; color: #ff6b6b;">${summary.high_transition_risk || 0}</div>
+                        <div>High Transition Risk</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 2em; font-weight: 600; color: #4caf50;">${summary.acquisition_targets || 0}</div>
+                        <div>Acquisition Targets</div>
+                    </div>
+                </div>
+                
+                <h4>🏆 Top Opportunities</h4>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.1);">
+                                <th style="padding: 10px; text-align: left;">Business</th>
+                                <th style="padding: 10px; text-align: left;">Valuation</th>
+                                <th style="padding: 10px; text-align: left;">AOA Score</th>
+                                <th style="padding: 10px; text-align: left;">Transition Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(summary.top_opportunities || []).map(opp => `
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <td style="padding: 10px; font-weight: 500;">${opp.name}</td>
+                                    <td style="padding: 10px; color: #FFD700; font-weight: 600;">$${(opp.valuation_p50 || 0).toLocaleString()}</td>
+                                    <td style="padding: 10px;">${(opp.aoa_score || 0).toFixed(1)}</td>
+                                    <td style="padding: 10px; color: ${(opp.transition_risk || 0) > 60 ? '#4caf50' : '#ffa726'};">${(opp.transition_risk || 0).toFixed(1)}%</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
+    """)
+
+@app.route('/api/csv-template')
+def csv_template():
+    """📥 Download CSV template for batch valuation"""
+    template = """business_id,name,category,geo,R_total,R_12,stars,years_in_business,ads_vol_1,ads_cpc_1,ads_comp_1,median_income,population
+hvac_001,Joe's HVAC,HVAC,"Dallas, TX",120,25,4.3,8,8000,12.0,0.7,65000,25000
+restaurant_002,Maria's Cafe,Restaurant,"Miami, FL",89,18,4.1,5,2500,3.5,0.8,58000,30000
+dental_003,Smile Dental,Dental,"Chicago, IL",156,31,4.7,12,1200,8.2,0.6,72000,45000
+auto_004,Quick Lube,Auto Repair,"Houston, TX",67,14,3.9,6,3200,4.5,0.9,55000,28000
+landscape_005,Green Thumb,Landscaping,"Phoenix, AZ",45,12,4.2,4,1800,6.0,0.5,62000,35000"""
+    
+    from flask import Response
+    return Response(
+        template,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=valuation_template.csv"}
+    )
+
 if __name__ == '__main__':
-    print(f"🚀 Starting Avilla Partners API Server...")
+    print(f"🚀 Starting Enhanced Okapiq API Server...")
     print(f"📊 Loaded {len(FIRMS_DATABASE)} firms")
+    print(f"🏦 SMB Valuation Engine: {'✅ ENABLED' if VALUATION_ENGINE_AVAILABLE else '❌ DISABLED'}")
     print(f"🌐 Dashboard: http://localhost:5000")
+    print(f"💰 Valuation Dashboard: http://localhost:5000/valuation")
     print(f"📡 API endpoints available at /api/*")
+    if VALUATION_ENGINE_AVAILABLE:
+        print(f"🎯 Valuation endpoints:")
+        print(f"   POST /api/valuate - Single business valuation")
+        print(f"   POST /api/valuate/batch - Batch CSV valuation")
+        print(f"   POST /api/zip-opportunities - ZIP opportunity analysis")
+        print(f"   GET /api/priors - Category priors")
+        print(f"   GET /api/csv-template - Download CSV template")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
